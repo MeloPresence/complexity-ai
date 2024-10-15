@@ -1,0 +1,230 @@
+"use client"
+
+import { useChat } from "ai/react"
+import { DragEvent, useEffect, useRef, useState } from "react"
+import { Markdown } from "@/components/markdown"
+
+function getTextFromDataUrl(dataUrl: string) {
+  const base64 = dataUrl.split(",")[1]
+  // Yes, it's (Awful to Beautiful) for (Base64 to readable ASCII text)
+  return window.atob(base64)
+}
+
+function TextFilePreview({ file }: { file: File }) {
+  const [content, setContent] = useState<string>("")
+
+  useEffect(() => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target?.result
+      setContent(typeof text === "string" ? text.slice(0, 100) : "")
+    }
+    reader.readAsText(file)
+  }, [file])
+
+  return (
+    <div>
+      {content}
+      {content.length >= 100 && "..."}
+    </div>
+  )
+}
+
+export default function Home() {
+  const { messages, input, handleSubmit, handleInputChange, isLoading } =
+    useChat({
+      onError: (error: Error) => alert(`${error.name}\n${error.message}`),
+    })
+
+  const [files, setFiles] = useState<FileList | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const items = event.clipboardData?.items
+
+    if (items) {
+      const files = Array.from(items)
+        .map((item) => item.getAsFile())
+        .filter((file): file is File => file !== null)
+
+      if (files.length > 0) {
+        const validFiles = files.filter(
+          (file) =>
+            file.type.startsWith("image/") || file.type.startsWith("text/"),
+        )
+
+        if (validFiles.length === files.length) {
+          const dataTransfer = new DataTransfer()
+          validFiles.forEach((file) => dataTransfer.items.add(file))
+          setFiles(dataTransfer.files)
+        } else {
+          alert("Only image and text files are allowed")
+        }
+      }
+    }
+  }
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const droppedFiles = event.dataTransfer.files
+    const droppedFilesArray = Array.from(droppedFiles)
+    if (droppedFilesArray.length > 0) {
+      const validFiles = droppedFilesArray.filter(
+        (file) =>
+          file.type.startsWith("image/") || file.type.startsWith("text/"),
+      )
+
+      if (validFiles.length === droppedFilesArray.length) {
+        const dataTransfer = new DataTransfer()
+        validFiles.forEach((file) => dataTransfer.items.add(file))
+        setFiles(dataTransfer.files)
+      } else {
+        alert("Only image and text files are allowed!")
+      }
+    }
+    setIsDragging(false)
+  }
+
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  return (
+    <div
+      className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="fixed pointer-events-none dark:bg-zinc-900/90 h-dvh w-dvw z-10 flex flex-row justify-center items-center flex flex-col gap-1 bg-zinc-100/90">
+          <div>Drag and drop files here</div>
+          <div className="text-sm dark:text-zinc-400 text-zinc-500">
+            {"(images and text)"}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col justify-between gap-4">
+        {messages.length > 0 ? (
+          <div className="flex flex-col gap-2 h-full w-dvw items-center overflow-y-scroll">
+            {messages.map((message, index) => (
+              <div
+                key={message.id}
+                className={`flex flex-row gap-2 px-4 w-full md:w-[500px] md:px-0 ${
+                  index === 0 ? "pt-20" : ""
+                }`}
+              >
+                <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
+                  {message.role === "assistant" ? "🤖" : "👤"}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+                    <Markdown>{message.content}</Markdown>
+                  </div>
+                  <div className="flex flex-row gap-2">
+                    {message.experimental_attachments?.map((attachment) =>
+                      attachment.contentType?.startsWith("image") ? (
+                        <img
+                          className="rounded-md w-40 mb-3"
+                          key={attachment.name}
+                          src={attachment.url}
+                          alt={attachment.name}
+                        />
+                      ) : attachment.contentType?.startsWith("text") ? (
+                        <div className="text-xs w-40 h-24 overflow-hidden text-zinc-400 border p-2 rounded-md dark:bg-zinc-800 dark:border-zinc-700 mb-3">
+                          {getTextFromDataUrl(attachment.url)}
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {isLoading &&
+              messages[messages.length - 1].role !== "assistant" && (
+                <div className="flex flex-row gap-2 px-4 w-full md:w-[500px] md:px-0">
+                  <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400"></div>
+                  <div className="flex flex-col gap-1 text-zinc-400">
+                    <div>hmm...</div>
+                  </div>
+                </div>
+              )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        ) : (
+          <div className="h-[350px] px-4 w-full md:w-[500px] md:px-0 pt-20">
+            <div className="border rounded-lg p-6 flex flex-col gap-4 text-zinc-500 text-sm dark:text-zinc-400 dark:border-zinc-700">
+              <p>
+                Start messaging below. Drag and drop or paste a document to
+                extract and query information related to it.
+              </p>
+              <p>Log in to...</p>
+            </div>
+          </div>
+        )}
+
+        <form
+          className="flex flex-col gap-2 relative items-center"
+          onSubmit={(event) => {
+            const options = files ? { experimental_attachments: files } : {}
+            handleSubmit(event, options)
+            setFiles(null)
+          }}
+        >
+          {files && files.length > 0 && (
+            <div className="flex flex-row gap-2 absolute bottom-12 px-4 w-full md:w-[500px] md:px-0">
+              {Array.from(files).map((file) =>
+                file.type.startsWith("image") ? (
+                  <div key={file.name}>
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      className="rounded-md w-16"
+                    />
+                  </div>
+                ) : file.type.startsWith("text") ? (
+                  <div
+                    key={file.name}
+                    className="text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+                  >
+                    <TextFilePreview file={file} />
+                  </div>
+                ) : null,
+              )}
+            </div>
+          )}
+
+          <input
+            ref={inputRef}
+            className="bg-zinc-100 rounded-md px-2 py-1.5 w-full outline-none dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]"
+            placeholder="Send a message..."
+            value={input}
+            onChange={handleInputChange}
+            onPaste={handlePaste}
+          />
+        </form>
+      </div>
+    </div>
+  )
+}
