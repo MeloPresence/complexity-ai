@@ -15,7 +15,12 @@ function getTextFromDataUrl(dataUrl: string) {
 
 export default function AnonymousChatPage() {
   const chat = useChat({
-    onError: (error: Error) => alert(`${error.name}\n${error.message}`),
+    keepLastMessageOnError: true,
+    // TODO: Development purposes only
+    onError: (error: Error) => {
+      alert(`DEV: ${error}\nCheck console.`)
+      console.error(error, error.stack)
+    },
   })
   const { messages, isLoading } = chat
 

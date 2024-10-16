@@ -11,7 +11,17 @@ export function ChatInput({
   setFiles: (files: FileList | null) => void
   chat: ReturnType<typeof useChat>
 }) {
-  const { input, isLoading, handleSubmit, handleInputChange, stop } = chat
+  const {
+    input,
+    isLoading,
+    messages,
+    setMessages,
+    handleSubmit: handleSubmitFunc,
+    handleInputChange,
+    stop,
+    error,
+    reload,
+  } = chat
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
@@ -35,14 +45,25 @@ export function ChatInput({
     }
   }
 
+  const isNewInputAvailable = input || files?.length
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!isNewInputAvailable) {
+      if (error) reload()
+      return
+    }
+
+    const options = files ? { experimental_attachments: files } : {}
+    if (error != null) setMessages(messages.slice(0, -1)) // Remove last message because the user isn't retrying it
+    handleSubmitFunc(event, options)
+    setFiles(null)
+  }
+
   return (
     <form
       className="flex flex-col gap-2 relative items-center"
-      onSubmit={(event) => {
-        const options = files ? { experimental_attachments: files } : {}
-        handleSubmit(event, options)
-        setFiles(null)
-      }}
+      onSubmit={handleSubmit}
     >
       {files && files.length > 0 && (
         <div className="flex flex-row gap-2 bottom-12 px-4 w-full md:w-[500px] md:px-0">
@@ -75,17 +96,26 @@ export function ChatInput({
           onChange={handleInputChange}
           onPaste={handlePaste}
         />
-        {isLoading ? (
+        {error && !isNewInputAvailable && (
+          <div>
+            <button type="button" onClick={() => reload()}>
+              Retry
+            </button>
+          </div>
+        )}
+        {isLoading && (
           <div>
             <button type="button" onClick={() => stop()}>
               Stop
             </button>
           </div>
-        ) : (
+        )}
+        {!isLoading && ((error && isNewInputAvailable) || !error) && (
           <input type="submit" disabled={isLoading} />
         )}
       </div>
-      <span className="text-xs">Press Enter to send</span>
+      {error && <div className="text-xs text-red">An error occurred.</div>}
+      <div className="text-xs">Press Enter to send</div>
     </form>
   )
 }
