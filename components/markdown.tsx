@@ -19,7 +19,7 @@ export const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 
   const components: Partial<Components> = {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    code: ({ inline, className, children, ...props }: any) => {
+    code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || "")
       return !inline && match ? (
         <SyntaxHighlighter
@@ -40,7 +40,7 @@ export const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       )
     },
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    ol: ({ children, ...props }: any) => {
+    ol: ({ node, children, ...props }: any) => {
       return (
         <ol className="list-decimal list-inside ml-4" {...props}>
           {children}
@@ -48,7 +48,7 @@ export const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       )
     },
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    li: ({ children, ...props }: any) => {
+    li: ({ node, children, ...props }: any) => {
       return (
         <li className="py-1" {...props}>
           {children}
@@ -56,7 +56,7 @@ export const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       )
     },
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    ul: ({ children, ...props }: any) => {
+    ul: ({ node, children, ...props }: any) => {
       return (
         <ul className="list-decimal list-inside ml-4" {...props}>
           {children}
