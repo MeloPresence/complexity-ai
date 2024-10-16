@@ -31,6 +31,8 @@ export default function AnonymousChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text)
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -39,39 +41,70 @@ export default function AnonymousChatPage() {
     <DragAndDropFilePicker onAddFiles={setFiles}>
       <div className="flex flex-col justify-between gap-4">
         {messages.length > 0 ? (
+          // Have existing messages
           <div className="flex flex-col gap-2 h-full w-dvw items-center overflow-y-scroll">
             {messages.map((message, index) => (
               <div
                 key={message.id}
-                className={`flex flex-row gap-2 px-4 w-full md:w-[500px] md:px-0 ${
-                  index === 0 ? "pt-20" : ""
+                className={`group hover:bg-zinc-100 flex flex-col gap-1 px-4 w-full md:w-[500px] md:px-0 ${
+                  index === 0 ? "mt-20" : ""
                 }`}
               >
-                <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
-                  {message.role === "assistant" ? "🤖" : "👤"}
+                <div className="flex gap-2">
+                  {/*Sender icon*/}
+                  <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
+                    {message.role === "assistant" ? "🤖" : "👤"}
+                  </div>
+
+                  {/*Message*/}
+                  <div className="flex flex-col gap-1">
+                    {/*Text content*/}
+                    <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+                      <Markdown>{message.content}</Markdown>
+                    </div>
+                    {/*File attachements*/}
+                    <div className="flex flex-row gap-2">
+                      {message.experimental_attachments?.map((attachment) =>
+                        attachment.contentType?.startsWith("image") ? (
+                          <img
+                            className="rounded-md w-40 mb-3"
+                            key={attachment.name}
+                            src={attachment.url}
+                            alt={attachment.name}
+                          />
+                        ) : attachment.contentType?.startsWith("text") ? (
+                          <div className="text-xs w-40 h-24 overflow-hidden text-zinc-400 border p-2 rounded-md dark:bg-zinc-800 dark:border-zinc-700 mb-3">
+                            {getTextFromDataUrl(attachment.url)}
+                          </div>
+                        ) : null,
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-                    <Markdown>{message.content}</Markdown>
-                  </div>
-                  <div className="flex flex-row gap-2">
-                    {message.experimental_attachments?.map((attachment) =>
-                      attachment.contentType?.startsWith("image") ? (
-                        <img
-                          className="rounded-md w-40 mb-3"
-                          key={attachment.name}
-                          src={attachment.url}
-                          alt={attachment.name}
-                        />
-                      ) : attachment.contentType?.startsWith("text") ? (
-                        <div className="text-xs w-40 h-24 overflow-hidden text-zinc-400 border p-2 rounded-md dark:bg-zinc-800 dark:border-zinc-700 mb-3">
-                          {getTextFromDataUrl(attachment.url)}
-                        </div>
-                      ) : null,
+                {/*Bottom bar context menu (hidden when last message is still streaming)*/}
+                {(index !== messages.length - 1 ||
+                  (index === messages.length - 1 && !isLoading)) && (
+                  <div className="flex gap-1 text-sm bg-zinc-200 invisible group-hover:visible">
+                    <div className="text-xs">
+                      Bottom bar context menu for{" "}
+                      {message.role === "assistant" ? "🤖" : "👤"}
+                    </div>
+
+                    <button
+                      className="bg-zinc-100"
+                      onClick={() => copyToClipboard(message.content)}
+                    >
+                      Copy
+                    </button>
+
+                    {message.role === "assistant" ? (
+                      <>{/*AI-specific actions*/}</>
+                    ) : (
+                      <>{/*User-specific actions*/}</>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             ))}
 
@@ -88,6 +121,7 @@ export default function AnonymousChatPage() {
             <div ref={messagesEndRef} />
           </div>
         ) : (
+          // No messages (new conversation)
           <div className="h-[350px] px-4 w-full md:w-[500px] md:px-0 pt-20">
             <div className="border rounded-lg p-6 flex flex-col gap-4 text-zinc-500 text-sm dark:text-zinc-400 dark:border-zinc-700">
               <p>
