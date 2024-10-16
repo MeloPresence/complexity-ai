@@ -5,16 +5,14 @@ import { isValidAttachment } from "@/utils/validation"
 export function ChatInput({
   files,
   setFiles,
-  input,
-  handleSubmit,
-  handleInputChange,
+  chat,
 }: {
   files: FileList | null
   setFiles: (files: FileList | null) => void
-  input: ReturnType<typeof useChat>["input"]
-  handleSubmit: ReturnType<typeof useChat>["handleSubmit"]
-  handleInputChange: ReturnType<typeof useChat>["handleInputChange"]
+  chat: ReturnType<typeof useChat>
 }) {
+  const { input, isLoading, handleSubmit, handleInputChange, stop } = chat
+
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
 
@@ -69,13 +67,24 @@ export function ChatInput({
         </div>
       )}
 
-      <input
-        className="bg-zinc-100 rounded-md px-2 py-1.5 w-full outline-none dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]"
-        placeholder="Send a message..."
-        value={input}
-        onChange={handleInputChange}
-        onPaste={handlePaste}
-      />
+      <div className="flex gap-1 bg-zinc-100 rounded-md px-2 py-1.5 w-full dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]">
+        <input
+          className="outline-none flex-grow bg-transparent"
+          placeholder="Send a message..."
+          value={input}
+          onChange={handleInputChange}
+          onPaste={handlePaste}
+        />
+        {isLoading ? (
+          <div>
+            <button type="button" onClick={() => stop()}>
+              Stop
+            </button>
+          </div>
+        ) : (
+          <input type="submit" disabled={isLoading} />
+        )}
+      </div>
       <span className="text-xs">Press Enter to send</span>
     </form>
   )
