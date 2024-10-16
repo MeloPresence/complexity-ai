@@ -2,21 +2,27 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Setup
+
+If you are developing on WSL, create a `.npmrc` file at the top level with `node-linker=hoisted` to make language services work when installed with `pnpm`.
+
+Then, run `pnpm i` to install dependencies.
+
+Get a free Google Gemini API key [here](https://makersuite.google.com/app/apikey).
+
+Make a copy of `.env` as `.env.local` and fill in the API keys.
+
+### Running locally
+
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing pages by modifying any `page.tsx`. The current landing page is [`app/(chat)/@anonymous/page.tsx`](app/(chat)/@anonymous/page.tsx). The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
