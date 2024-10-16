@@ -16,7 +16,7 @@ export function ChatInput({
     isLoading,
     messages,
     setMessages,
-    handleSubmit: handleSubmitFunc,
+    handleSubmit: handleSubmitFn,
     handleInputChange,
     stop,
     error,
@@ -55,8 +55,8 @@ export function ChatInput({
     }
 
     const options = files ? { experimental_attachments: files } : {}
-    if (error !== null) setMessages(messages.slice(0, -1)) // Remove last message because the user isn't retrying it
-    handleSubmitFunc(event, options)
+    if (error) setMessages(messages.slice(0, -1)) // Remove last message because the user isn't retrying it
+    handleSubmitFn(event, options)
     setFiles(null)
   }
 
