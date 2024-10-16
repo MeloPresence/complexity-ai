@@ -13,8 +13,6 @@ export function ChatInput({
   setFiles: (files: FileList | null) => void
   input: ReturnType<typeof useChat>["input"]
   handleSubmit: ReturnType<typeof useChat>["handleSubmit"]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // handleSubmit: (...args: any) => any
   handleInputChange: ReturnType<typeof useChat>["handleInputChange"]
 }) {
   const handlePaste = (event: React.ClipboardEvent) => {

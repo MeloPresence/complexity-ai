@@ -97,7 +97,7 @@ export default function AnonymousChatPage() {
           </div>
         )}
 
-        <ChatInput {...{ files, setFiles, ...chat, handleSubmit: () => {} }} />
+        <ChatInput {...{ files, setFiles, ...chat }} />
       </div>
     </DragAndDropFilePicker>
   )
