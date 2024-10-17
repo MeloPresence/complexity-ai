@@ -158,7 +158,10 @@ const TokenizedText = ({
       throw new Error("Invalid separator")
     }
 
-    return input.split(splitRegex).filter((token) => token.length > 0)
+    return input
+      .replace(/^[\r\n]+/g, "")
+      .split(splitRegex)
+      .filter((token) => token.length > 0)
   }, [input, sep])
 
   return (
@@ -174,6 +177,7 @@ const TokenizedText = ({
             whiteSpace: "pre-wrap",
             display: "inline-block",
           }}
+          data-dev-src="TokenizedText"
         >
           {token}
         </span>
@@ -200,10 +204,7 @@ export const NonMemoizedAnimatedMarkdown = ({
           if (Array.isArray(input)) {
             // Process each element in the array
             return input.map((element) => processText(element))
-          } else if (
-            typeof input === "string" &&
-            input.replace(/^[^\S\r\n]+/g, "").replace(/[^\S\r\n]+$/g, "")
-          ) {
+          } else if (typeof input === "string") {
             return (
               <TokenizedText
                 input={input}
@@ -230,7 +231,7 @@ export const NonMemoizedAnimatedMarkdown = ({
       [animation, animationDuration, animationTimingFunction, sep],
     )
 
-  const customRenderer = ({
+  const codeBlockRenderer = ({
     rows,
     stylesheet,
     useInlineStyles,
@@ -247,7 +248,11 @@ export const NonMemoizedAnimatedMarkdown = ({
                 }
               : token.properties?.style || {}
           return (
-            <span key={key} style={tokenStyles}>
+            <span
+              key={key}
+              style={tokenStyles}
+              data-dev-src="codeBlockRenderer.outer"
+            >
               {token.children &&
                 token.children[0].value
                   .split(" ")
@@ -262,6 +267,7 @@ export const NonMemoizedAnimatedMarkdown = ({
                         whiteSpace: "pre-wrap",
                         display: "inline-block",
                       }}
+                      data-dev-src="codeBlockRenderer.inner"
                     >
                       {word +
                         (index < token.children[0].value.split(" ").length - 1
@@ -324,8 +330,8 @@ export const NonMemoizedAnimatedMarkdown = ({
         <a
           {...props}
           href={props.href}
-          target="_blank"
-          rel="noopener noreferrer"
+          target={props.href.startsWith("#") ? "_self" : "_blank"}
+          rel={props.href.startsWith("#") ? "" : "noopener noreferrer"}
         >
           {animateText(props.children)}
         </a>
@@ -344,7 +350,7 @@ export const NonMemoizedAnimatedMarkdown = ({
             <SyntaxHighlighter
               language={match[1]}
               style={prismStyle}
-              renderer={customRenderer}
+              renderer={codeBlockRenderer}
             >
               {children}
             </SyntaxHighlighter>
