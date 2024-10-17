@@ -1,11 +1,11 @@
 "use client"
 
-import { useChat } from "ai/react"
-import { useEffect, useRef, useState } from "react"
-import { Markdown } from "@/components/markdown"
-import Link from "next/link"
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
+import { AnimatedMarkdown as Markdown } from "@/components/markdown/markdown"
+import { useChat } from "ai/react"
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
 
 function getTextFromDataUrl(dataUrl: string) {
   const base64 = dataUrl.split(",")[1]
@@ -42,7 +42,7 @@ export default function AnonymousChatPage() {
       <div className="flex flex-col justify-between gap-4">
         {messages.length > 0 ? (
           // Have existing messages
-          <div className="flex flex-col gap-2 h-full w-dvw items-center overflow-y-scroll">
+          <div className="flex flex-col gap-2 items-center min-h-full">
             {messages.map((message, index) => (
               <div
                 key={message.id}
@@ -57,10 +57,14 @@ export default function AnonymousChatPage() {
                   </div>
 
                   {/*Message*/}
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 max-w-full">
                     {/*Text content*/}
-                    <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-                      <Markdown>{message.content}</Markdown>
+                    <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 markdown">
+                      {message.role === "assistant" ? (
+                        <Markdown>{message.content}</Markdown>
+                      ) : (
+                        message.content
+                      )}
                     </div>
                     {/*File attachements*/}
                     <div className="flex flex-row gap-2">
