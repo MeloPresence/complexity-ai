@@ -83,6 +83,13 @@ export function ChatInput({
               >
                 <TextFilePreview file={file} />
               </div>
+            ) : file.type.startsWith("application/pdf") ? (
+              <div
+                key={file.name}
+                className="text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+              >
+                {file.name}
+              </div>
             ) : null,
           )}
         </div>
