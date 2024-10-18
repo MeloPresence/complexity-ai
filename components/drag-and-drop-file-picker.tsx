@@ -1,5 +1,5 @@
-import { DragEvent, useState } from "react"
 import { isValidAttachment } from "@/utils/validation"
+import { DragEvent, useState } from "react"
 
 export default function DragAndDropFilePicker({
   children,
@@ -41,7 +41,7 @@ export default function DragAndDropFilePicker({
 
   return (
     <div
-      className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900"
+      className="flex flex-row justify-center pb-20 bg-white dark:bg-zinc-900 min-h-dvh"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

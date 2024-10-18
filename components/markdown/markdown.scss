@@ -1,0 +1,42 @@
+:root {
+  --marker-animation: none;
+}
+
+.markdown {
+  .custom-li::marker {
+    animation: var(--marker-animation);
+  }
+
+  .code-block {
+    animation: var(--marker-animation);
+  }
+
+  .smooth-height-transition {
+    overflow: hidden;
+    transition: height 1s ease;
+  }
+
+  h1 {
+    @apply text-2xl font-bold;
+  }
+
+  h2 {
+    @apply text-xl font-bold;
+  }
+
+  h3 {
+    @apply text-lg font-bold;
+  }
+
+  h4 {
+    @apply text-lg font-medium;
+  }
+
+  h5 {
+    @apply font-medium;
+  }
+
+  h6 {
+    // base
+  }
+}

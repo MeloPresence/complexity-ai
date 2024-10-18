@@ -1,6 +1,6 @@
 import TextFilePreview from "@/components/text-file-preview"
-import { type useChat } from "ai/react"
 import { isValidAttachment } from "@/utils/validation"
+import { type useChat } from "ai/react"
 
 export function ChatInput({
   files,
@@ -62,7 +62,7 @@ export function ChatInput({
 
   return (
     <form
-      className="flex flex-col gap-2 relative items-center"
+      className="flex flex-col gap-2 items-center sticky bottom-0 bg-white"
       onSubmit={handleSubmit}
     >
       {files && files.length > 0 && (
