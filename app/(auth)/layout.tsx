@@ -5,7 +5,7 @@ export default function AuthLayout({
 }>) {
   return (
     <div>
-      <div>Auth Layout placeholder</div>
+      {/* <div>Auth Layout placeholder</div> */}
       <div>{children}</div>
     </div>
   )
