@@ -60,7 +60,7 @@ const SignUp = () => {
           </blockquote>
         </div>
       </div>
-      <div className="relative mr-150 lg:p-8 flex justify-center items-center ml-auto ml-[10vw]">
+      <div className="relative mr-150 lg:p-8 flex justify-center items-center ml-[10vw]">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
