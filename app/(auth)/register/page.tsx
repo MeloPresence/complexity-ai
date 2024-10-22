@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 //import { UserAuthForm } from "@/app/(app)/examples/authentication/components/user-auth-form"; // Assuming this handles the form
 import { signUpWithEmail } from "@/utils/firebaseAuth";
+import { z } from "zod";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -10,17 +11,57 @@ const SignUp = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const signUpSchema = z.object({
+    email: z
+      .string()
+      .min(1, { message: "Email field cannot be left blank" })
+      .email({ message: "Invalid email address" }),
+
+    password: z
+      .string()
+      .min(1, { message: "Password field cannot be left blank" })
+      .min(5, { message: "Password must be at least 5 characters long" })
+      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      .regex(/\d/, { message: "Password must contain at least one number" })
+      .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character" }),
+  });
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
 
+    // Validate the form data
     try {
+      // First, check if the email is empty
+      if (email.trim() === "") {
+        setError("Email field cannot be left blank");
+        return;
+      }
+
+      else if (password.trim() === "") {
+        setError("Password field cannot be left blank");
+        return;
+      }
+
+      // Then validate the entire schema
+      signUpSchema.parse({ email, password }); // Validate email and password with Zod
+
+      // If validation passes, proceed with sign-up
       const user = await signUpWithEmail(email, password);
       setSuccessMessage(
         "Sign-up successful! A verification email has been sent to your email address."
       );
-    } catch (err: unknown) {
+    } catch (err) {
+      // Handle Zod validation errors
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map(error => error.message).join(", ");
+        setError(validationErrors);
+        return;
+      }
+
+      // Handle other errors (like sign-up errors)
       if (err instanceof Error) {
         setError("Error signing up: " + err.message);
       } else {
@@ -67,7 +108,7 @@ const SignUp = () => {
               Create an account
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email and password below to create your account.
+              Enter your email and password to create your account.
             </p>
           </div>
           <form onSubmit={handleSignUp} className="space-y-4">

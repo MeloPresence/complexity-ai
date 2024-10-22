@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -14,6 +15,14 @@ import { Input } from "@/registry/new-york/ui/input";
 import { Button } from "@/registry/new-york/ui/button";
 import { Label } from "@/registry/new-york/ui/label";
 
+// Zod schema for email validation
+const forgotPassSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email field cannot be left blank" })
+    .email({ message: "Invalid email address" }),
+});
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -21,19 +30,34 @@ const ForgotPassword = () => {
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    const auth = getAuth();
+    setError(""); // Clear previous errors
+    setSuccessMessage(""); // Clear previous success message
 
+    // Zod validation
     try {
+      forgotPassSchema.parse({ email });
+
+      const auth = getAuth();
+
+      // Try sending the password reset email
       await sendPasswordResetEmail(auth, email);
       setSuccessMessage('Password reset email has been sent! Please check your inbox.');
-      setError(''); // Clear any previous errors
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError('Error sending reset email: ' + err.message);
+    } catch (err) {
+      // Zod validation errors
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map((e) => e.message).join(", ");
+        setError(validationErrors);
+      }
+      // Firebase-specific errors
+      else if (err instanceof Error) {
+        if (err.message.includes('auth/user-not-found')) {
+          setError("This email is not linked to any account. Please use a registered email or create a new one.");
+        } else {
+          setError('Error sending reset email: This email is not linked to any account. ' + err.message);
+        }
       } else {
         setError('An unknown error occurred.');
       }
-      setSuccessMessage(''); // Clear the success message if there's an error
     }
   };
 
@@ -42,7 +66,9 @@ const ForgotPassword = () => {
       <Card className="w-full max-w-md p-6">
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-tight">Reset Password</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">Enter your email to receive a password reset link</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">
+            Enter your email to receive a password reset link
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-5">
           <div className="grid gap-2">

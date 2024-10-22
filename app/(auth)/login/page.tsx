@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { logInWithEmail } from "@/utils/firebaseAuth";
 import Link from "next/link";
+import { z } from "zod";
 
 import {
   Card,
@@ -24,10 +25,44 @@ const Login = () => {
 
   const router = useRouter();
 
+  const loginSchema = z.object({
+    email: z
+      .string()
+      .min(1, { message: "Email field cannot be left blank" })
+      .email({ message: "Invalid email address" }),
+
+    password: z
+      .string()
+      .min(1, { message: "Password field cannot be left blank" })
+      // .min(5, { message: "Password must be at least 5 characters long" })
+      // .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      // .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      // .regex(/\d/, { message: "Password must contain at least one number" })
+      // .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character" }),
+  });
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Reset error state
+
+    // Validate the form data
     try {
-      const user = await logInWithEmail(email, password);
+      // First, check if the email and password are empty
+      if (email.trim() === "") {
+        setError("Email field cannot be left blank");
+        return;
+      }
+
+      if (password.trim() === "") {
+        setError("Password field cannot be left blank");
+        return;
+      }
+
+      // Validate email and password against the schema
+      loginSchema.parse({ email, password });
+
+      // Attempt to log in with email and password
+      const user = await logInWithEmail(email, password); // Ensure you have this function implemented
 
       if (user?.emailVerified) {
         router.push("/");
@@ -35,13 +70,26 @@ const Login = () => {
         setError("Please verify your email before logging in.");
       }
     } catch (err: unknown) {
+
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.map((error) => error.message).join(", ");
+        setError(validationErrors);
+        return;
+      }
+
+      // Handle authentication errors (like incorrect password)
       if (err instanceof Error) {
-        setError("Error logging in: " + err.message);
+        if (err.message.includes("wrong-password")) {
+          setError("Incorrect password. Please try again.");
+        } else {
+          setError("Error logging in: " + err.message);
+        }
       } else {
         setError("An unknown error occurred.");
       }
     }
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
