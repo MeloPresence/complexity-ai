@@ -7,9 +7,24 @@ export class MessageTreeNode {
     private readonly _childNodes: MessageTreeNode[] = [],
   ) {}
 
-  public getMessages(): Message[] {
+  // Excludes the root, which has no message
+  public getMessageNodePath(): MessageTreeNode[] {
     if (!this._parentNode || !this._message) return []
-    return [...this._parentNode.getMessages(), this._message]
+    return [...this._parentNode.getMessageNodePath(), this]
+  }
+
+  public getMessagesUpToThisNode(): Message[] {
+    return this.getMessageNodePath().map((node) => node.getMessage()!)
+  }
+
+  public getLatestLeafNode(): MessageTreeNode {
+    if (this._childNodes.length === 0) return this
+
+    return this._childNodes.slice(-1)[0].getLatestLeafNode()
+  }
+
+  public getMessage(): Message | null {
+    return this._message
   }
 
   public createChild(message: Message): MessageTreeNode {
@@ -24,7 +39,19 @@ export class MessageTreeNode {
     return childNode
   }
 
-  public get parentNode(): MessageTreeNode | null {
+  public getParentNode(): MessageTreeNode | null {
     return this._parentNode
+  }
+
+  public getChildrenCount(): number {
+    return this._childNodes.length
+  }
+
+  public getIndexOfChild(node: MessageTreeNode): number {
+    return this._childNodes.indexOf(node)
+  }
+
+  public getChildAtIndex(index: number): MessageTreeNode {
+    return this._childNodes[index]
   }
 }

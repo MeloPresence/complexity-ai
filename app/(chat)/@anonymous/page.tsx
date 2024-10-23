@@ -3,33 +3,39 @@
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
+import { MessageTreeNode } from "@/utils/message"
+import { Message } from "ai"
 import { useChat } from "ai/react"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { MessageTreeNode } from "@/utils/message"
 
 export default function AnonymousChatPage() {
-  const [rootMessageTreeNode, setRootMessageTreeNode] = useState(
+  const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
+    useState<boolean>(false)
+  const [latestMessageTreeNode, setLatestMessageTreeNode] = useState(
     new MessageTreeNode(),
   )
-  const [latestMessageTreeNode, setLatestMessageTreeNode] =
-    useState(rootMessageTreeNode)
 
-  const customMessages = useMemo(
-    () => latestMessageTreeNode.getMessages(),
+  const currentMessageNodePath = useMemo<MessageTreeNode[]>(
+    () => latestMessageTreeNode.getMessageNodePath(),
     [latestMessageTreeNode],
   )
+  const customMessages = useMemo<Message[]>(
+    () => currentMessageNodePath.map((node) => node.getMessage()!),
+    [currentMessageNodePath],
+  )
+
   const prevMessagesCount = useRef(0)
 
   const chat = useChat({
     keepLastMessageOnError: true,
-    // TODO: Development purposes only
     onError: (error: Error) => {
+      // TODO: Development purposes only
       alert(`DEV: ${error}\nCheck console.`)
       console.error(error, error.stack)
     },
   })
-  const { messages, setMessages, isLoading } = chat
+  const { messages, isLoading } = chat
 
   const [files, setFiles] = useState<FileList | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -39,6 +45,12 @@ export default function AnonymousChatPage() {
   }
   useEffect(() => {
     scrollToBottom()
+
+    // This flag is used to edit the messages array without triggering this side effect
+    if (isSwappingMessageTreeBranches) {
+      setIsSwappingMessageTreeBranches(false)
+      return
+    }
 
     // Message count change handler
     if (prevMessagesCount.current !== messages.length) {
@@ -52,11 +64,18 @@ export default function AnonymousChatPage() {
         setLatestMessageTreeNode(newNode)
       } else {
         console.log("Deleted message!")
-        // Fewer messages???
+        const difference = prevMessagesCount.current - messages.length
+        let parentNode: MessageTreeNode | null = null
+        for (let i = 0; i < difference; i++) {
+          if (i === 0) {
+            parentNode = latestMessageTreeNode.getParentNode()
+          } else {
+            parentNode = parentNode ? parentNode.getParentNode() : null
+          }
+        }
+        // Fewer messages
         // Send new message when error happens to previous message
         // (Does not trigger when resending an errored message)
-        // But what if I edited the message? How do I disable this behavior?
-        const parentNode = latestMessageTreeNode.parentNode
         if (parentNode) {
           parentNode.popChild()
           setLatestMessageTreeNode(parentNode)
@@ -69,39 +88,40 @@ export default function AnonymousChatPage() {
 
       console.log("Change in message count:", { messages, customMessages })
       prevMessagesCount.current = messages.length
+    } else if (latestMessageTreeNode.getParentNode()) {
+      // equals
+      console.log("Updated message!")
+      const parentNode = latestMessageTreeNode.getParentNode()!
+      parentNode.popChild()
+      const newNode = parentNode.createChild(messages[messages.length - 1])
+      setLatestMessageTreeNode(newNode)
     }
   }, [messages])
-
-  useEffect(() => {
-    console.log("Change in custom messages:", { messages, customMessages })
-  }, [customMessages])
-
-  const editMessage = (node: MessageTreeNode) => {
-    const parentNode = node.parentNode
-    if (parentNode) {
-      parentNode
-      setLatestMessageTreeNode(parentNode)
-    } else {
-      throw new Error(
-        "The root node has no message, this should be impossible!",
-      )
-    }
-  }
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
       <div className="flex flex-col justify-between gap-4">
-        {messages.length > 0 ? (
+        {currentMessageNodePath.length > 0 ? (
           // Have existing messages
           <div className="flex flex-col gap-2 items-center min-h-full">
-            {messages.map((message, index) => (
-              <ChatBubble {...{ message, index, chat }} key={message.id} />
+            {currentMessageNodePath.map((node, index) => (
+              <ChatBubble
+                {...{
+                  node,
+                  index,
+                  chat,
+                  isLatestMessage: index === customMessages.length - 1,
+                  setIsSwappingMessageTreeBranches,
+                  setLatestMessageTreeNode,
+                }}
+                key={node.getMessage()!.id}
+              />
             ))}
 
             {isLoading &&
-              messages[messages.length - 1].role !== "assistant" && (
-                <LoadingChatBubble />
-              )}
+              currentMessageNodePath[
+                currentMessageNodePath.length - 1
+              ].getMessage()!.role !== "assistant" && <LoadingChatBubble />}
 
             <div ref={messagesEndRef} />
           </div>
