@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-//import { UserAuthForm } from "@/app/(app)/examples/authentication/components/user-auth-form"; // Assuming this handles the form
 import { signUpWithEmail } from "@/utils/firebaseAuth";
 import { z } from "zod";
 

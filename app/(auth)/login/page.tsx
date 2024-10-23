@@ -16,7 +16,6 @@ import {
 } from "@/components/card-login";
 import { Input } from "@/registry/new-york/ui/input";
 import { Button } from "@/registry/new-york/ui/button";
-import { Label } from "@/registry/new-york/ui/label";
 
 const Login = () => {
   const [email, setEmail] = useState("");

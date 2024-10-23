@@ -13,7 +13,6 @@ import {
 } from "@/components/card-login";
 import { Input } from "@/registry/new-york/ui/input";
 import { Button } from "@/registry/new-york/ui/button";
-import { Label } from "@/registry/new-york/ui/label";
 
 // Zod schema for email validation
 const forgotPassSchema = z.object({
@@ -35,12 +34,15 @@ const ForgotPassword = () => {
 
     // Zod validation
     try {
+      // First, validate the email format using Zod
       forgotPassSchema.parse({ email });
 
       const auth = getAuth();
 
-      // Try sending the password reset email
+      // Send the password reset email
       await sendPasswordResetEmail(auth, email);
+
+      // If no error is thrown, email is sent successfully
       setSuccessMessage('Password reset email has been sent! Please check your inbox.');
     } catch (err) {
       // Zod validation errors
@@ -53,13 +55,14 @@ const ForgotPassword = () => {
         if (err.message.includes('auth/user-not-found')) {
           setError("This email is not linked to any account. Please use a registered email or create a new one.");
         } else {
-          setError('Error sending reset email: This email is not linked to any account. ' + err.message);
+          setError('Error sending reset email: ' + err.message);
         }
       } else {
         setError('An unknown error occurred.');
       }
     }
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
