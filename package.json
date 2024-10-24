@@ -28,7 +28,7 @@
     "sass": "^1.80.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "3.24.0-canary.20241016T212913"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
