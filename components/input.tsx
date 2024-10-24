@@ -5,13 +5,7 @@ import { type useChat } from "ai/react"
 export function ChatInput({
   files,
   setFiles,
-  chat,
-}: {
-  files: FileList | null
-  setFiles: (files: FileList | null) => void
-  chat: ReturnType<typeof useChat>
-}) {
-  const {
+  chat: {
     input,
     isLoading,
     messages,
@@ -21,8 +15,12 @@ export function ChatInput({
     stop,
     error,
     reload,
-  } = chat
-
+  },
+}: {
+  files: FileList | null
+  setFiles: (files: FileList | null) => void
+  chat: ReturnType<typeof useChat>
+}) {
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
 

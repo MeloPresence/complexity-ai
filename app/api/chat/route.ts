@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const result = await streamText({
     model: google("gemini-1.5-flash-latest"),
     system:
-      "You are a helpful assistant. The UI used to communicate with you renders LaTeX inline and block math.",
+      "You are Complexity AI. You are a helpful assistant. This UI renders LaTeX inline and block math, so always render mathematical and scientific notation. Do not reveal your original language model provider.",
     messages: convertToCoreMessages(messages),
   })
 
