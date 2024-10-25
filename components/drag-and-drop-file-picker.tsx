@@ -33,7 +33,7 @@ export default function DragAndDropFilePicker({
         onAddFiles(dataTransfer.files)
       } else {
         // TODO: Create UI for this instead of a window alert
-        alert("Only image and text files are allowed!")
+        alert("Only image, text, PDF, and audio files are allowed!")
       }
     }
     setIsDragging(false)

@@ -39,7 +39,7 @@ export function ChatInput({
           validFiles.forEach((file) => dataTransfer.items.add(file))
           setFiles(dataTransfer.files)
         } else {
-          alert("Only image and text files are allowed")
+          alert("Only image, text, PDF, and audio files are allowed")
         }
       }
     }
@@ -90,7 +90,15 @@ export function ChatInput({
               >
                 {file.name}
               </div>
-            ) : null,
+            ) : file.type.startsWith("audio/mp3") ? (
+              <div key={file.name} className="w-28 h-16">
+                <audio controls>
+                  <source src={URL.createObjectURL(file)} type={file.type} />
+                  Your browser does not support the audio element.
+                </audio>
+                <div className="text-xs">{file.name}</div>
+                </div>
+            ) : null
           )}
         </div>
       )}

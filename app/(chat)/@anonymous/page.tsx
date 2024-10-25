@@ -6,6 +6,7 @@ import { ChatBubble, LoadingChatBubble } from "@/components/message"
 import { useChat } from "ai/react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+import { processAudioFile } from "@/app/audio";
 
 export default function AnonymousChatPage() {
   const chat = useChat({
@@ -27,6 +28,34 @@ export default function AnonymousChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // // Function to process audio files
+  // const handleFileProcessing = async () => {
+  //   if (files && files.length > 0) {
+  //     const file = files[0];
+
+  //     // Check if the file is an audio file
+  //     if (file.type.startsWith("audio/")) {
+  //       try {
+  //         // Call the processAudioFile function with the file path
+  //         const mediaPath = URL.createObjectURL(file);
+  //         await processAudioFile(mediaPath);
+  //       } catch (error) {
+  //         console.error("Error processing audio file:", error);
+  //         //chat.onError(error as Error);
+  //       }
+  //     } else {
+  //       alert("Please upload a valid audio file.");
+  //     }
+  //   }
+  // };
+
+  // // Call handleFileProcessing when files are added
+  // useEffect(() => {
+  //   if (files) {
+  //     handleFileProcessing();
+  //   }
+  // }, [files]);
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>

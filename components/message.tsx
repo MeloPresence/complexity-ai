@@ -65,6 +65,13 @@ export function ChatBubble({
                 <div className="text-xs w-40 h-24 overflow-hidden text-zinc-400 border p-2 rounded-md dark:bg-zinc-800 dark:border-zinc-700 mb-3">
                   {attachment.name}
                 </div>
+              ) : attachment.contentType?.startsWith("audio/") ? (
+                <div key={attachment.name} className="mb-3">
+                  <audio controls>
+                    <source src={attachment.url} type={attachment.contentType} />
+                    Your browser does not support the audio element.
+                  </audio>
+                  </div>
               ) : null,
             )}
           </div>

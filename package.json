@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.51",
+    "@google-cloud/aiplatform": "^3.31.0",
+    "@google-cloud/storage": "^7.13.0",
+    "@google/generative-ai": "^0.21.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "ai": "^3.4.9",
@@ -25,6 +28,7 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "sass": "^1.80.0",
+    "server": "link:@google/generative-ai/server",
     "tailwind-merge": "^2.5.4",
     "zod": "3.24.0-canary.20241016T212913"
   },
