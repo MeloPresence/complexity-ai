@@ -10,13 +10,14 @@ import {
 } from "@/components/card-login"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { logInWithEmail } from "@/utils/firebaseAuth"
+import { EmailUnverifiedError } from "@/lib/errors"
+import { signInWithEmailAndPassword } from "@/lib/firebase/auth"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { z } from "zod"
 
-const Login = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -59,15 +60,14 @@ const Login = () => {
       // Validate email and password against the schema
       loginSchema.parse({ email, password })
 
-      // Attempt to log in with email and password
-      const user = await logInWithEmail(email, password) // Ensure you have this function implemented
+      const user = await signInWithEmailAndPassword(email, password)
 
-      if (user?.emailVerified) {
+      if (user.emailVerified) {
         router.push("/")
       } else {
-        setError("Please verify your email before logging in.")
+        throw new EmailUnverifiedError()
       }
-    } catch (err: unknown) {
+    } catch (err) {
       if (err instanceof z.ZodError) {
         const validationErrors = err.errors
           .map((error) => error.message)
@@ -77,15 +77,16 @@ const Login = () => {
       }
 
       // Handle authentication errors (like incorrect password)
-      if (err instanceof Error) {
-        if (err.message.includes("wrong-password")) {
-          setError("Incorrect password. Please try again.")
-        } else {
-          setError("Error logging in: " + err.message)
-        }
-      } else {
-        setError("An unknown error occurred.")
+      if (err instanceof Error && err.message.includes("wrong-password")) {
+        setError("Incorrect password. Please try again.")
+        return
       }
+      if (err instanceof Error) {
+        setError("Error logging in: " + err.message)
+        return
+      }
+
+      setError("An unknown error occurred.")
     }
   }
 
@@ -141,5 +142,3 @@ const Login = () => {
     </div>
   )
 }
-
-export default Login

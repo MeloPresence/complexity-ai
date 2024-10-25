@@ -10,7 +10,7 @@ import {
 } from "@/components/card-login"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getAuth, sendPasswordResetEmail } from "firebase/auth"
+import { sendPasswordResetEmail } from "@/lib/firebase/auth"
 import { useState } from "react"
 import { z } from "zod"
 
@@ -22,14 +22,14 @@ const forgotPassSchema = z.object({
     .email({ message: "Invalid email address" }),
 })
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("")
-  const [error, setError] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState<string>("")
+  const [errorMessage, setErrorMessage] = useState<string>("")
+  const [successMessage, setSuccessMessage] = useState<string>("")
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("") // Clear previous errors
+    setErrorMessage("") // Clear previous errors
     setSuccessMessage("") // Clear previous success message
 
     // Zod validation
@@ -37,10 +37,7 @@ const ForgotPassword = () => {
       // First, validate the email format using Zod
       forgotPassSchema.parse({ email })
 
-      const auth = getAuth()
-
-      // Send the password reset email
-      await sendPasswordResetEmail(auth, email)
+      await sendPasswordResetEmail(email)
 
       // If no error is thrown, email is sent successfully
       setSuccessMessage(
@@ -50,20 +47,25 @@ const ForgotPassword = () => {
       // Zod validation errors
       if (err instanceof z.ZodError) {
         const validationErrors = err.errors.map((e) => e.message).join(", ")
-        setError(validationErrors)
+        setErrorMessage(validationErrors)
+        return
       }
+
       // Firebase-specific errors
-      else if (err instanceof Error) {
-        if (err.message.includes("auth/user-not-found")) {
-          setError(
-            "This email is not linked to any account. Please use a registered email or create a new one.",
-          )
-        } else {
-          setError("Error sending reset email: " + err.message)
-        }
-      } else {
-        setError("An unknown error occurred.")
+      if (err instanceof Error && err.message.includes("auth/user-not-found")) {
+        setErrorMessage(
+          "This email is not linked to any account. Please use a registered email or create a new one.",
+        )
+        return
       }
+
+      if (err instanceof Error) {
+        setErrorMessage("Error sending reset email: " + err.message)
+        return
+      }
+
+      // ???
+      setErrorMessage("An unknown error occurred.")
     }
   }
 
@@ -89,7 +91,9 @@ const ForgotPassword = () => {
               className="w-full rounded-md border p-2 text-sm"
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {errorMessage && (
+            <p className="text-red-500 text-sm">{errorMessage}</p>
+          )}
           {successMessage && (
             <p className="text-green-500 text-sm">{successMessage}</p>
           )}
@@ -106,5 +110,3 @@ const ForgotPassword = () => {
     </div>
   )
 }
-
-export default ForgotPassword
