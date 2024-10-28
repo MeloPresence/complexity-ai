@@ -6,12 +6,11 @@ import { ChatBubble, LoadingChatBubble } from "@/components/message"
 import { useChat } from "ai/react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { processAudioFile } from "@/app/audio";
+import { processAudioFile } from "@/utils/processAudio";
 
 export default function AnonymousChatPage() {
   const chat = useChat({
     keepLastMessageOnError: true,
-    // TODO: Development purposes only
     onError: (error: Error) => {
       alert(`DEV: ${error}\nCheck console.`)
       console.error(error, error.stack)
@@ -25,57 +24,40 @@ export default function AnonymousChatPage() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  // // Function to process audio files
-  // const handleFileProcessing = async () => {
-  //   if (files && files.length > 0) {
-  //     const file = files[0];
-
-  //     // Check if the file is an audio file
-  //     if (file.type.startsWith("audio/")) {
-  //       try {
-  //         // Call the processAudioFile function with the file path
-  //         const mediaPath = URL.createObjectURL(file);
-  //         await processAudioFile(mediaPath);
-  //       } catch (error) {
-  //         console.error("Error processing audio file:", error);
-  //         //chat.onError(error as Error);
-  //       }
-  //     } else {
-  //       alert("Please upload a valid audio file.");
-  //     }
-  //   }
-  // };
-
-  // // Call handleFileProcessing when files are added
-  // useEffect(() => {
-  //   if (files) {
-  //     handleFileProcessing();
-  //   }
-  // }, [files]);
+  // Process audio files
+  useEffect(() => {
+    if (files) {
+      Array.from(files).forEach(async (file) => {
+        if (file.type.startsWith("audio/mpeg")) {
+          const mediaPath = URL.createObjectURL(file);
+          await processAudioFile(mediaPath);
+        } else {
+          console.error("Unsupported file type:", file.type);
+        }
+      });
+    }
+  }, [files]);
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
       <div className="flex flex-col justify-between gap-4">
         {messages.length > 0 ? (
-          // Have existing messages
           <div className="flex flex-col gap-2 items-center min-h-full">
             {messages.map((message, index) => (
               <ChatBubble {...{ message, index, chat }} key={message.id} />
             ))}
-
             {isLoading &&
               messages[messages.length - 1].role !== "assistant" && (
                 <LoadingChatBubble />
               )}
-
             <div ref={messagesEndRef} />
           </div>
         ) : (
-          // No messages (new conversation)
           <div className="h-[350px] px-4 w-full md:w-[500px] md:px-0 pt-20">
             <div className="border rounded-lg p-6 flex flex-col gap-4 text-zinc-500 text-sm dark:text-zinc-400 dark:border-zinc-700">
               <p>
@@ -89,7 +71,6 @@ export default function AnonymousChatPage() {
             </div>
           </div>
         )}
-
         <ChatInput {...{ files, setFiles, chat }} />
       </div>
     </DragAndDropFilePicker>

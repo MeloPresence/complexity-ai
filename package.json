@@ -48,5 +48,10 @@
   },
   "prettier": {
     "semi": false
+  },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
   }
 }

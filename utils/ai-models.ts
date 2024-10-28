@@ -27,9 +27,9 @@ export const AI_MODELS = {
       // audio
       // "audio/aac",
       // "audio/flac",
-      // "audio/mp3",
+      "audio/mp3",
       // "audio/m4a",
-      // "audio/mpeg",
+      "audio/mpeg",
       // "audio/mpga",
       // "audio/mp4",
       // "audio/opus",
@@ -41,5 +41,5 @@ export const AI_MODELS = {
 }
 
 export const AI_PROVIDERS_TO_FUNCTION = {
-  google,
-}
+  google: typeof window === 'undefined' ? require('@ai-sdk/google').google : null,
+};

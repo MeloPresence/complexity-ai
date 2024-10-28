@@ -90,7 +90,7 @@ export function ChatInput({
               >
                 {file.name}
               </div>
-            ) : file.type.startsWith("audio/mp3") ? (
+            ) : file.type.startsWith("audio/mpeg") ? (
               <div key={file.name} className="w-28 h-16">
                 <audio controls>
                   <source src={URL.createObjectURL(file)} type={file.type} />

@@ -24,6 +24,9 @@ export default function DragAndDropFilePicker({
     event.preventDefault()
     const droppedFiles = event.dataTransfer.files
     const droppedFilesArray = Array.from(droppedFiles)
+
+    console.log(droppedFilesArray.map(file => file.type));
+
     if (droppedFilesArray.length > 0) {
       const validFiles = droppedFilesArray.filter(isValidAttachment)
 
