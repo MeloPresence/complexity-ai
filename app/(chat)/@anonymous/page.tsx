@@ -8,7 +8,6 @@ import { Message } from "ai"
 import { useChat } from "ai/react"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { processAudioFile } from "@/utils/processAudio"
 
 export default function AnonymousChatPage() {
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
@@ -99,20 +98,6 @@ export default function AnonymousChatPage() {
       setLatestMessageTreeNode(newNode)
     }
   }, [messages])
-
-  // Process audio files
-  useEffect(() => {
-    if (files) {
-      Array.from(files).forEach(async (file) => {
-        if (file.type.startsWith("audio/mpeg")) {
-          const mediaPath = URL.createObjectURL(file)
-          await processAudioFile(mediaPath)
-        } else {
-          console.error("Unsupported file type:", file.type)
-        }
-      })
-    }
-  }, [files])
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>

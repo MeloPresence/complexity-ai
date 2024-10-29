@@ -25,8 +25,6 @@ export default function DragAndDropFilePicker({
     const droppedFiles = event.dataTransfer.files
     const droppedFilesArray = Array.from(droppedFiles)
 
-    console.log(droppedFilesArray.map(file => file.type));
-
     if (droppedFilesArray.length > 0) {
       const validFiles = droppedFilesArray.filter(isValidAttachment)
 
@@ -36,7 +34,7 @@ export default function DragAndDropFilePicker({
         onAddFiles(dataTransfer.files)
       } else {
         // TODO: Create UI for this instead of a window alert
-        alert("Only image, text, PDF, and audio files are allowed!")
+        alert("Only image, text, PDF, audio, and video files are allowed!")
       }
     }
     setIsDragging(false)
