@@ -1,7 +1,7 @@
 import { AnimatedMarkdown as Markdown } from "@/components/markdown/markdown"
 import { MessageTreeNode } from "@/utils/message"
 import type { useChat } from "ai/react"
-import React, { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 const getTextFromDataUrl = (dataUrl: string): string => {
   const base64 = dataUrl.split(",")[1]
@@ -151,7 +151,32 @@ export function ChatBubble({
                   <div className="text-xs w-40 h-24 overflow-hidden text-zinc-400 border p-2 rounded-md dark:bg-zinc-800 dark:border-zinc-700 mb-3">
                     {attachment.name}
                   </div>
-                ) : null,
+                ) : attachment.contentType?.startsWith("audio/") ? (
+                  <div key={attachment.name} className="mb-3">
+                    <audio controls>
+                      <source
+                        src={attachment.url}
+                        type={attachment.contentType}
+                      />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                ) : attachment.contentType?.startsWith("video/") ? (
+                  <div key={attachment.name} className="mb-3">
+                    <video controls>
+                      <source
+                        src={attachment.url}
+                        type={attachment.contentType}
+                      />
+                      Your browser does not support the video element.
+                    </video>
+                  </div>
+                ) : (
+                  <div key={attachment.name} className="mb-3">
+                    <div>Type: {attachment.contentType}</div>
+                    <div>Name: {attachment.name}</div>
+                  </div>
+                ),
               )}
             </div>
           </div>
