@@ -12,8 +12,7 @@ export default function Layout({
 }: {
   anonymous: React.ReactNode
   authenticated: React.ReactNode
-})
-{
+}) {
   const user: User | null | undefined = useFirebaseUser()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -35,5 +34,5 @@ export default function Layout({
         {isAuthenticated ? authenticated : anonymous}
       </main>
     </SidebarProvider>
-  );
+  )
 }
