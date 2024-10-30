@@ -10,6 +10,7 @@ export function ChatInput({
     isLoading,
     messages,
     setMessages,
+    setData,
     handleSubmit: handleSubmitFn,
     handleInputChange,
     stop,
@@ -22,6 +23,7 @@ export function ChatInput({
   chat: ReturnType<typeof useChat>
 }) {
   const handlePaste = (event: React.ClipboardEvent) => {
+    console.debug("onPaste event:", { event })
     const items = event.clipboardData?.items
 
     if (items) {
@@ -37,6 +39,7 @@ export function ChatInput({
           validFiles.forEach((file) => dataTransfer.items.add(file))
           setFiles(dataTransfer.files)
         } else {
+          // TODO: Create UI for this instead of a window alert
           alert("Only image, text, PDF, audio, and video files are allowed!")
         }
       }
@@ -54,6 +57,7 @@ export function ChatInput({
 
     const options = files ? { experimental_attachments: files } : {}
     if (error) setMessages(messages.slice(0, -1)) // Remove last message because the user isn't retrying it
+    setData(undefined)
     handleSubmitFn(event, options)
     setFiles(null)
   }

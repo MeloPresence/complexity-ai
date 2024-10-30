@@ -14,7 +14,7 @@ const copyToClipboard = (text: string) => navigator.clipboard.writeText(text)
 export function ChatBubble({
   node,
   index,
-  chat: { isLoading, setMessages, error, messages, append },
+  chat: { isLoading, setMessages, setData, error, messages, append },
   isLatestMessage,
   setIsSwappingMessageTreeBranches,
   setLatestMessageTreeNode,
@@ -77,6 +77,7 @@ export function ChatBubble({
         .map((node) => node.getMessage()!)
         .slice(0, -1),
     )
+    setData(undefined)
     // This function is async
     // This triggers the useEffect in page.tsx to add new nodes
     // Thanks to the previous child clone, it creates new children as a new branch

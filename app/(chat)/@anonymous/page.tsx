@@ -44,8 +44,49 @@ export default function AnonymousChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  function consumeAnnotations(latestAssistantMessage: Message) {
+    if (latestAssistantMessage.annotations) {
+      const annotations = latestAssistantMessage.annotations
+      if (
+        // TODO: Maybe use zod? Or is this type of "optional but strict programming" better?
+        annotations[0] &&
+        typeof annotations[0] === "object" &&
+        !Array.isArray(annotations[0]) &&
+        annotations[0].previousUserMessageAttachments &&
+        typeof annotations[0].previousUserMessageAttachments === "object" &&
+        Array.isArray(annotations[0].previousUserMessageAttachments)
+      ) {
+        const latestUserMessage = messages.at(-2)!
+        annotations[0].previousUserMessageAttachments.forEach((attachment) => {
+          if (
+            attachment &&
+            typeof attachment === "object" &&
+            !Array.isArray(attachment) &&
+            typeof attachment.filesApiUri === "string"
+          ) {
+            // Silently modify without triggering a rerender?
+            latestUserMessage.experimental_attachments!.forEach(
+              (oldAttachment) =>
+                // To show the encrypted Gemini Files API asset to the user, I would need to "tunnel" the request?
+                // But files stored there are temporary, so really I should be storing it in my database
+                // @ts-expect-error Somehow I should override the built-in Attachment type if possible?
+                (oldAttachment.filesApiUri = attachment.filesApiUri),
+            )
+          }
+        })
+      }
+      console.log(latestAssistantMessage, latestAssistantMessage.annotations)
+      // Silently remove annotations without triggering a rerender?
+      latestAssistantMessage.annotations = undefined
+    }
+  }
+
   useEffect(() => {
     scrollToBottom()
+
+    const latestMessage = messages.at(-1)
+
+    if (latestMessage?.role === "assistant") consumeAnnotations(latestMessage)
 
     // This flag is used to edit the messages array without triggering this side effect
     if (isSwappingMessageTreeBranches) {
@@ -97,6 +138,7 @@ export default function AnonymousChatPage() {
       const newNode = parentNode.createChild(messages[messages.length - 1])
       setLatestMessageTreeNode(newNode)
     }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [messages])
 
   return (
