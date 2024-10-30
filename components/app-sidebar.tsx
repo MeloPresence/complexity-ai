@@ -1,5 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
-
+import { Calendar, Home, Inbox, Search, Settings, ChevronUp, User2, MoreHorizontal, CircleUser } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -9,35 +8,59 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
+  SidebarMenuAction,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar"
 
-// Menu items.
+// import {
+//   DropdownMenu,
+//   DropdownMenuTrigger,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+// } from "@radix-ui/react-dropdown-menu"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/registry/default/ui/dropdown-menu"
+
+// Main menu items.
 const items = [
   {
-    title: "Home",
+    title: "Today",
     url: "#",
-    icon: Home,
   },
   {
-    title: "Inbox",
+    title: "Yesterday",
     url: "#",
-    icon: Inbox,
   },
   {
-    title: "Calendar",
+    title: "Previous 30 days",
     url: "#",
-    icon: Calendar,
   },
   {
-    title: "Search",
+    title: "September",
     url: "#",
-    icon: Search,
+  },
+]
+
+// Submenu items.
+const subItems = [
+  {
+    title: "Dolphin rate in 2023",
+    url: "#"
   },
   {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+    title: "The Secret of NIMH video",
+    url: "#"
+  }
 ]
 
 export function AppSidebar() {
@@ -45,23 +68,89 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <div className="relative z-20 flex items-center text-lg font-medium">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mr-2 h-6 w-6"
+          >
+            <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+          </svg>
+          <SidebarGroupLabel className="truncate font-semibold text-black text-lg">Complexity Ai</SidebarGroupLabel>
+          </div>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="py-4">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      <item.icon />
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    {subItems.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild>
+                          <a href={subItem.url}>
+                            <span>{subItem.title}</span>
+                            <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <SidebarMenuAction>
+                              <MoreHorizontal />
+                            </SidebarMenuAction>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent side="right" align="start" className="bg-white border border-gray-200 rounded-md shadow-lg p-2 min-w-[150px] z-50">
+                            <DropdownMenuItem className="px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-gray-700">
+                              <span>Rename</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-gray-700">
+                              <span>Delete</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                          </a>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+          <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 /> Username
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator /> */}
+              <DropdownMenuItem className="px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-gray-700">
+                <span>Dark mode</span>
+                </DropdownMenuItem>
+              <DropdownMenuItem className="px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-gray-700">
+                <span>Log out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

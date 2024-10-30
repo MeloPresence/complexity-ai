@@ -29,15 +29,11 @@ export default function Layout({
     <div>Loading</div>
   ) : (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <main className="flex-grow flex items-center justify-center p-6 w-full">
-        <div className="relative w-full max-w-3xl text-center">
         <SidebarTrigger className="absolute top-4 left-1" />
         {isAuthenticated ? authenticated : anonymous}
-        </div>
       </main>
-      </div>
     </SidebarProvider>
   );
 }

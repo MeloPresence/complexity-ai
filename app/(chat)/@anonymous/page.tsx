@@ -100,10 +100,10 @@ export default function AnonymousChatPage() {
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
-      <div className="flex flex-col justify-between gap-4">
+      <div className="flex flex-col w-full justify-between gap-4">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
-          <div className="flex flex-col gap-2 items-center min-h-full">
+          <div className="flex flex-col gap-2 items-center min-h-full w-full">
             {currentMessageNodePath.map((node, index) => (
               <ChatBubble
                 {...{

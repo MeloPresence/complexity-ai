@@ -83,6 +83,16 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .custom-dropdown {
+    border-radius: 8px;
+    padding: 0.5rem;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .custom-dropdown-item:hover {
+    background-color: #dbeafe;
+  }
 }
 
 @layer base {
