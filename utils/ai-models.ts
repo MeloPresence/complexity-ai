@@ -8,8 +8,12 @@ export const AI_MODELS = {
     supportedAttachmentMimeTypes: [
       // text
       "text/plain",
+      "text/html",
+      "text/xml",
       // application
       "application/pdf",
+      "application/json",
+      "application/xml",
       // image
       "image/png",
       "image/jpeg",

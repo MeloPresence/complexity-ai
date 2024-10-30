@@ -1,4 +1,4 @@
-import { Message } from "ai"
+import { type Message } from "ai"
 
 export class MessageTreeNode {
   constructor(
@@ -20,7 +20,7 @@ export class MessageTreeNode {
   public getLatestLeafNode(): MessageTreeNode {
     if (this._childNodes.length === 0) return this
 
-    return this._childNodes.slice(-1)[0].getLatestLeafNode()
+    return this._childNodes.at(-1)!.getLatestLeafNode()
   }
 
   public getMessage(): Message | null {
