@@ -77,8 +77,6 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
             displayName: attachment.name,
           })
 
-        rm(filePath)
-
         let fileMetadataResponse = await fileManager.getFile(
           uploadFileResponse.file.name,
         )
@@ -88,6 +86,8 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
             uploadFileResponse.file.name,
           )
         }
+
+        rm(filePath)
 
         if (fileMetadataResponse.state === FileState.FAILED) {
           throw new Error("File upload failed.")
