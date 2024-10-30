@@ -8,7 +8,7 @@ If you are developing on WSL, create a `.npmrc` file at the top level with `node
 
 Then, run `pnpm i` to install dependencies.
 
-Get a free Google Gemini API key [here](https://makersuite.google.com/app/apikey).
+Get a free Google Gemini API key [here](https://makersuite.google.com/app/apikey). You will also need a Firebase project.
 
 Make a copy of `.env` as `.env.local` and fill in the API keys.
 
