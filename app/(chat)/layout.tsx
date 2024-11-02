@@ -5,6 +5,7 @@ import { type User } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export default function Layout({
   anonymous,
@@ -28,12 +29,24 @@ export default function Layout({
   return isLoading ? (
     <div>Loading</div>
   ) : (
-    <SidebarProvider>
-      <AppSidebar />
-      <main className="flex-grow flex items-center justify-center p-6 w-full">
-        <SidebarTrigger className="absolute top-4 left-1" />
-        {isAuthenticated ? authenticated : anonymous}
-      </main>
-    </SidebarProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider>
+            <AppSidebar />
+            <main className="flex-grow flex items-center justify-center p-6 w-full">
+              <SidebarTrigger className="absolute top-4 left-1" />
+              {isAuthenticated ? authenticated : anonymous}
+            </main>
+          </SidebarProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
