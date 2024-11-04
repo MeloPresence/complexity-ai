@@ -10,7 +10,7 @@ import {
 } from "@/components/card-login"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { sendPasswordResetEmail } from "@/lib/firebase/auth"
+import { sendPasswordResetEmail } from "@/lib/client/firebase/auth"
 import { useState } from "react"
 import { z } from "zod"
 

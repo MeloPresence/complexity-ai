@@ -1,6 +1,7 @@
 import {
   Message,
   type ModdedCoreUserMessage,
+  storeMessages,
   transformMessage,
 } from "@/lib/server/message"
 import { google } from "@ai-sdk/google"
@@ -19,8 +20,10 @@ const SYSTEM_PROMPT = `
 export async function POST(req: Request) {
   const {
     messages,
+    conversationId,
   }: {
     messages: Message[]
+    conversationId?: string
   } = await req.json()
   if (!messages.length) throw new Error("No messages included in API request")
 
@@ -38,7 +41,7 @@ export async function POST(req: Request) {
     model: google("gemini-1.5-flash-latest"),
     system: SYSTEM_PROMPT,
     messages: multiModalMessages,
-    onFinish() {
+    async onFinish({ text }) {
       // The client should delete this immediately because this may interfere with message editing branches
       if (latestUserMessage.experimental_attachments)
         data.appendMessageAnnotation({
@@ -48,6 +51,15 @@ export async function POST(req: Request) {
             ),
         })
       data.close()
+
+      // Remove message annotations first
+      // Also make sure the client-side action of adding the filesApiUri to the last user message is reflected here
+
+      const latestAssistantMessage = {
+        role: "assistant",
+        content: [{ type: "text", text }],
+      }
+      await storeMessages([...multiModalMessages, latestAssistantMessage])
     },
   })
 

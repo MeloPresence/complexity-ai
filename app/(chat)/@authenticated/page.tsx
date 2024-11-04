@@ -1,8 +1,8 @@
 "use client" // Firebase does client-side authentication!
 
 import { Button } from "@/components/ui/button"
-import { signOut } from "@/lib/firebase/auth"
-import { useFirebaseUser } from "@/lib/firebase/user"
+import { signOut } from "@/lib/client/firebase/auth"
+import { useFirebaseUser } from "@/lib/client/firebase/user"
 import { User } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"

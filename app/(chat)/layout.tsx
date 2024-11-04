@@ -1,10 +1,10 @@
 "use client" // Firebase does client-side authentication!
 
-import { useFirebaseUser } from "@/lib/firebase/user"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { useFirebaseUser } from "@/lib/client/firebase/user"
 import { type User } from "firebase/auth"
 import { useEffect, useState } from "react"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
 
 export default function Layout({
   anonymous,

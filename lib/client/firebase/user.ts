@@ -1,6 +1,6 @@
 "use client" // Firebase does client-side authentication!
 
-import { onAuthStateChanged } from "@/lib/firebase/auth"
+import { onAuthStateChanged } from "@/lib/client/firebase/auth"
 import { type User } from "firebase/auth"
 import { useEffect, useState } from "react"
 

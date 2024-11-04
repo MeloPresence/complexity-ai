@@ -1,4 +1,4 @@
-import { auth } from "@/lib/firebase/app"
+import { auth } from "@/lib/client/firebase/app"
 import {
   createUserWithEmailAndPassword,
   NextOrObserver,

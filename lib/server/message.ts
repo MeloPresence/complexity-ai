@@ -108,3 +108,21 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
 
   return modifiedMessage
 }
+
+export async function storeMessages(
+  messages: Message[],
+  conversationId?: string,
+) {
+  // How to store attachments?
+  // 1. Immediately upload to Gemini Files API so that the response can be done ASAP
+  // 2. Also upload to my own Firebase Bucket
+  // 3. Store Gemini Files API URL, the GFA upload time and Firebase Bucket URL
+  // 4. When processing a messages, if the GFA time > 24 hours, reupload using Firebase Bucket URL
+  console.log(JSON.stringify(messages, null, 2))
+
+  if (!conversationId) {
+    // create new document
+  } else {
+    // update previous document
+  }
+}

@@ -1,5 +1,5 @@
 "use client"
-import { signUpWithEmailAndPassword } from "@/lib/firebase/auth"
+import { signUpWithEmailAndPassword } from "@/lib/client/firebase/auth"
 import Link from "next/link"
 import { useState } from "react"
 import { z } from "zod"
