@@ -1,5 +1,5 @@
 import TextFilePreview from "@/components/text-file-preview"
-import { isValidAttachment } from "@/utils/validation"
+import { isValidAttachment } from "@/lib/validation"
 import { type useChat } from "ai/react"
 
 export function ChatInput({

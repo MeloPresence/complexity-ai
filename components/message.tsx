@@ -1,5 +1,5 @@
 import { AnimatedMarkdown as Markdown } from "@/components/markdown/markdown"
-import { MessageTreeNode } from "@/utils/message"
+import { MessageTreeNode } from "@/lib/message"
 import type { useChat } from "ai/react"
 import { useCallback, useMemo, useState } from "react"
 

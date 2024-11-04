@@ -1,5 +1,5 @@
+import { AI_MODELS } from "@/lib/ai-models"
 import { createContext } from "react"
-import { AI_MODELS } from "@/utils/ai-models"
 
 export type Options = {
   model: keyof typeof AI_MODELS

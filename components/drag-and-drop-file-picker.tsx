@@ -1,4 +1,4 @@
-import { isValidAttachment } from "@/utils/validation"
+import { isValidAttachment } from "@/lib/validation"
 import { DragEvent, useState } from "react"
 
 export default function DragAndDropFilePicker({

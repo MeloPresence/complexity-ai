@@ -2,7 +2,7 @@ import {
   Message,
   type ModdedCoreUserMessage,
   transformMessage,
-} from "@/lib/api/message"
+} from "@/lib/server/message"
 import { google } from "@ai-sdk/google"
 import { StreamData, streamText } from "ai"
 

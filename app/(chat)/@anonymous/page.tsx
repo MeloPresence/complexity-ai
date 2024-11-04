@@ -3,7 +3,7 @@
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
-import { MessageTreeNode } from "@/utils/message"
+import { MessageTreeNode } from "@/lib/message"
 import { Message } from "ai"
 import { useChat } from "ai/react"
 import Link from "next/link"
