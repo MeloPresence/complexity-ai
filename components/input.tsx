@@ -60,7 +60,7 @@ export function ChatInput({
 
   return (
     <form
-      className="flex flex-col gap-2 items-center sticky bottom-0 bg-white"
+      className="flex flex-col gap-1 items-center sticky bottom-0 bg-white"
       onSubmit={handleSubmit}
     >
       {files && files.length > 0 && (
@@ -93,9 +93,9 @@ export function ChatInput({
         </div>
       )}
 
-      <div className="flex gap-1 bg-zinc-100 rounded-md px-2 py-1.5 w-full dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]">
+      <div className="flex bg-zinc-100 mt-3 rounded-3xl p-3 py-3 w-full text-zinc-800 dark:text-zinc-300 md:max-w-[700px] max-w-[calc(100dvw-32px)]">
         <input
-          className="outline-none flex-grow bg-transparent"
+          className="outline-none flex-grow bg-transparent text-black"
           placeholder="Send a message..."
           value={input}
           onChange={handleInputChange}

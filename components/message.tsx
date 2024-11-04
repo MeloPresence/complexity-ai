@@ -3,6 +3,8 @@ import { MessageTreeNode } from "@/utils/message"
 import type { useChat } from "ai/react"
 import React, { useCallback, useMemo, useState } from "react"
 
+import { ClipboardIcon, Pencil2Icon } from "@radix-ui/react-icons"
+
 const getTextFromDataUrl = (dataUrl: string): string => {
   const base64 = dataUrl.split(",")[1]
   // Yes, it's (Awful to Beautiful) for (Base64 to readable ASCII text)
@@ -105,15 +107,16 @@ export function ChatBubble({
   return (
     <div
       {...props}
-      className={`${className} group hover:bg-zinc-100 flex flex-col gap-1 px-4 w-full md:w-[500px] md:px-0 ${
+      className={`${className} group flex flex-col gap-1 w-full md:w-[100%] md:px-0 ml-20 mr-20 ${
         index === 0 ? "mt-20" : ""
       }`}
     >
-      <div className="flex gap-2">
-        {/*Sender icon*/}
-        <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
-          {message.role === "assistant" ? "🤖" : "👤"}
-        </div>
+      <div className={`flex gap-2 ${
+          message.role === "assistant"
+            ? "bg-zinc-800 text-white max-w-[70%]" // AI bubble
+            : "bg-zinc-100 text-black max-w-[70%]" // User bubble
+        } rounded-3xl p-3 ${message.role === "user" ? "ml-auto" : "mr-auto"}`} // Align right for user
+      >
 
         {/*Message*/}
         {isEditModeEnabled ? (
@@ -161,20 +164,21 @@ export function ChatBubble({
       {/*Bottom bar context menu (hidden when last message is still streaming)*/}
       {(!isLatestMessage || (isLatestMessage && !isLoading)) && (
         <div
-          className={`${isEditModeEnabled ? "visible" : "invisible"} flex gap-1 text-sm bg-zinc-200 group-hover:visible`}
+          className={`${isEditModeEnabled ? "visible" : "invisible"} flex gap-1 text-sm bg-transparent group-hover:visible`}
         >
-          <div className="text-xs">
+          {/* <div className="text-xs">
             Bottom bar context menu for{" "}
             {message.role === "assistant" ? "🤖" : "👤"}
-          </div>
+          </div> */}
 
           {!isEditModeEnabled && (
             <>
               <button
-                className="bg-zinc-100"
+                className="bg-transparent"
+                title="Copy"
                 onClick={() => copyToClipboard(message.content)}
               >
-                Copy
+                <ClipboardIcon />
               </button>
             </>
           )}
@@ -186,7 +190,9 @@ export function ChatBubble({
               {/*User-specific actions*/}
               {isEditModeEnabled ? (
                 <>
-                  <button className="bg-zinc-100" onClick={disableEditMode}>
+                  <button
+                    className="bg-zinc-100"
+                    onClick={disableEditMode}>
                     Cancel
                   </button>
                   <button className="bg-zinc-100" onClick={handleSubmitForEdit}>
@@ -195,8 +201,12 @@ export function ChatBubble({
                 </>
               ) : (
                 <>
-                  <button className="bg-zinc-100" onClick={enableEditMode}>
-                    Edit
+                  <button
+                    className="bg-zinc-100"
+                    title="Edit"
+                    onClick={enableEditMode}
+                    >
+                    <Pencil2Icon />
                   </button>
                   {numOfSiblings > 1 && (
                     <>
@@ -232,7 +242,7 @@ export function ChatBubble({
 export function LoadingChatBubble() {
   return (
     <div className="flex flex-row gap-2 px-4 w-full md:w-[500px] md:px-0">
-      <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400"></div>
+      <div className="size-[24px] flex flex-col flex-shrink-0 text-zinc-400"></div>
       <div className="flex flex-col gap-1 text-zinc-400">
         <div>hmm...</div>
       </div>
