@@ -1,6 +1,7 @@
 import TextFilePreview from "@/components/text-file-preview"
 import { isValidAttachment } from "@/utils/validation"
 import { type useChat } from "ai/react"
+import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 
 export function ChatInput({
   files,
@@ -93,8 +94,8 @@ export function ChatInput({
         </div>
       )}
 
-      <div className="flex bg-zinc-100 mt-3 rounded-3xl p-3 py-3 w-full text-zinc-800 dark:text-zinc-300 md:max-w-[700px] max-w-[calc(100dvw-32px)]">
-        <input
+      <div className="flex bg-zinc-100 rounded-3xl p-3 py-1 w-full md:max-w-[810px] max-w-[calc(100dvw-32px)]">
+      <input
           className="outline-none flex-grow bg-transparent text-black"
           placeholder="Send a message..."
           value={input}
@@ -110,14 +111,24 @@ export function ChatInput({
         )}
         {isLoading && (
           <div>
-            <button type="button" onClick={stop}>
-              Stop
+            <button
+            type="button"
+            onClick={stop}
+            >
+              <StopIcon className="size-[18px] mr-2 mt-2"/>
             </button>
           </div>
         )}
         {!isLoading && ((error && isNewInputAvailable) || !error) && (
-          <input type="submit" disabled={isLoading} />
-        )}
+            <button
+              type="submit"
+              className="bg-zinc-100 rounded-full p-2"
+              title="Send"
+              disabled={isLoading}
+            >
+              <PaperPlaneIcon className="size-[18px]"/>
+            </button>
+          )}
       </div>
       {error && <div className="text-xs text-red">An error occurred.</div>}
       <div className="text-xs">Press Enter to send</div>

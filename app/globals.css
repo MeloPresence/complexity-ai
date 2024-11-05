@@ -93,6 +93,7 @@ body {
   .custom-dropdown-item:hover {
     background-color: #dbeafe;
   }
+
 }
 
 @layer base {

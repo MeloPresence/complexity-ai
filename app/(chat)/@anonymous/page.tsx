@@ -103,7 +103,7 @@ export default function AnonymousChatPage() {
       <div className="flex flex-col w-full justify-between gap-4">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
-          <div className="flex flex-col gap-2 items-center min-h-full ml-20 mr-20">
+          <div className="flex flex-col gap-2 items-center min-h-full ml-60 mr-60">
             {currentMessageNodePath.map((node, index) => (
               <ChatBubble
                 {...{

@@ -68,6 +68,7 @@ const config: Config = {
   		}
   	}
   },
+
   /* eslint-disable @typescript-eslint/no-require-imports */
   plugins: [require("tailwindcss-animate")],
 }
