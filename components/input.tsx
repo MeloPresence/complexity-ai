@@ -46,11 +46,10 @@ export function ChatInput({
 
   const isNewInputAvailable = input || files?.length
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handleSubmit = () => {
     if (!isNewInputAvailable) {
-      if (error) reload()
-      return
+      if (error) reload();
+      return;
     }
 
     const options = files ? { experimental_attachments: files } : {}
@@ -95,13 +94,26 @@ export function ChatInput({
       )}
 
       <div className="flex bg-zinc-100 rounded-3xl p-3 py-1 w-full md:max-w-[810px] max-w-[calc(100dvw-32px)]">
-      <input
-          className="outline-none flex-grow bg-transparent text-black"
-          placeholder="Send a message..."
-          value={input}
-          onChange={handleInputChange}
-          onPaste={handlePaste}
-        />
+      <textarea
+    className="outline-none flex-grow bg-transparent text-black resize-none overflow-y-auto max-h-40 text-left ml-2"
+    placeholder="Send a message..."
+    value={input}
+    onChange={handleInputChange}
+    onPaste={handlePaste}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault(); // Prevent new line
+        handleSubmit(); // Call your submit function
+      }
+    }}
+    style={{
+      height: '40px',
+      maxHeight: '10rem',    // Limit max height for vertical scrolling
+      overflowY: 'auto',     // Add vertical scrollbar when text overflows
+      textAlign: 'left',   // Center horizontally
+      paddingTop: '0.5rem'   // Align text starting at top
+    }}
+  />
         {error && !isNewInputAvailable && (
           <div>
             <button type="button" onClick={() => reload()}>
@@ -115,7 +127,7 @@ export function ChatInput({
             type="button"
             onClick={stop}
             >
-              <StopIcon className="size-[18px] mr-2 mt-2"/>
+              <StopIcon className="size-[18px] mr-2 mt-3"/>
             </button>
           </div>
         )}

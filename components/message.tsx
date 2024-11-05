@@ -3,7 +3,7 @@ import { MessageTreeNode } from "@/utils/message"
 import type { useChat } from "ai/react"
 import React, { useCallback, useMemo, useState } from "react"
 
-import { ChevronLeftIcon, ChevronRightIcon, ClipboardIcon, Pencil2Icon } from "@radix-ui/react-icons"
+import { ChevronLeftIcon, ChevronRightIcon, ClipboardIcon, CopyIcon, Pencil2Icon } from "@radix-ui/react-icons"
 
 const getTextFromDataUrl = (dataUrl: string): string => {
   const base64 = dataUrl.split(",")[1]
@@ -121,7 +121,7 @@ export function ChatBubble({
         {/*Message*/}
         {isEditModeEnabled ? (
           <textarea
-          className="text-[14px] outline-none"
+          className="max-w-full text-[14px] outline-none resize-y p-2"
             defaultValue={editInput}
             onChange={(event) => {
               setEditInput(event.target.value)
@@ -174,7 +174,7 @@ export function ChatBubble({
           title="Copy"
           onClick={() => copyToClipboard(message.content)}
         >
-          <ClipboardIcon />
+          <CopyIcon />
         </button>
       </div>
     ) : (
@@ -205,7 +205,7 @@ export function ChatBubble({
               title="Copy"
               onClick={() => copyToClipboard(message.content)}
             >
-              <ClipboardIcon />
+              <CopyIcon />
             </button>
             {numOfSiblings > 1 && (
               <>
