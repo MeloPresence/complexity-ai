@@ -33,7 +33,7 @@ export const conversationConverter: FirestoreDataConverter<
   ConversationDataModel
 > = {
   fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options.data)
+    const data = snapshot.data(options)
     return new Conversation(data.name, data.userId, data.isPublic)
   },
   toFirestore: (conversation) =>
