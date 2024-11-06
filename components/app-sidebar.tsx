@@ -14,10 +14,10 @@ import {
   SquareTerminal,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
+//import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+//import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -33,23 +33,11 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
+  apps:
     {
       name: "Complexity Ai",
       logo: Command,
-      plan: "Enterprise",
     },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Playground",
@@ -137,7 +125,7 @@ const data = {
       ],
     },
   ],
-  projects: [
+  today: [
     {
       name: "Design Engineering",
       url: "#",
@@ -154,17 +142,49 @@ const data = {
       icon: Map,
     },
   ],
+  yesterday: [
+    {
+      name: "Team Meeting",
+      url: "#",
+      icon: Map,
+    },
+    {
+      name: "Client Review",
+      url: "#",
+      icon: Frame,
+    },
+  ],
+  previous30days: [
+    {
+      name: "Project Planning",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Developnent Spring",
+      url: "#",
+      icon: AudioWaveform,
+    },
+  ],
+
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <SidebarHeader><div className="flex items-center space-x-2">
+          <data.apps.logo /> {/* Renders the app logo icon */}
+          <span className="font-semibold">{data.apps.name}</span> {/* Renders the app name */}
+        </div>
+        {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavMain items={data.navMain} /> */}
+        <NavProjects
+          today={data.today}
+          yesterday={data.yesterday}
+          previous30days={data.previous30days}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

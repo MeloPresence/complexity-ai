@@ -40,7 +40,7 @@ export default function Layout({
         >
           <SidebarProvider>
             <AppSidebar />
-            <main className="flex-1 overflow-y-scroll flex-grow flex items-center justify-center h-screen">
+            <main className="flex-1 flex-grow flex items-center justify-center h-screen">
               <SidebarTrigger className="absolute top-4 left-1" />
               {isAuthenticated ? authenticated : anonymous}
             </main>
