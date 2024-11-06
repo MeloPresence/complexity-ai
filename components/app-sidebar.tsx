@@ -38,132 +38,38 @@ const data = {
       name: "Complexity Ai",
       logo: Command,
     },
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
   today: [
     {
       name: "Design Engineering",
       url: "#",
-      icon: Frame,
     },
     {
       name: "Sales & Marketing",
       url: "#",
-      icon: PieChart,
     },
     {
       name: "Travel",
       url: "#",
-      icon: Map,
     },
   ],
   yesterday: [
     {
       name: "Team Meeting",
       url: "#",
-      icon: Map,
     },
     {
       name: "Client Review",
       url: "#",
-      icon: Frame,
     },
   ],
   previous30days: [
     {
       name: "Project Planning",
       url: "#",
-      icon: Frame,
     },
     {
       name: "Developnent Spring",
       url: "#",
-      icon: AudioWaveform,
     },
   ],
 
@@ -172,9 +78,10 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader><div className="flex items-center space-x-2">
+      <SidebarHeader>
+        <div className="flex items-center space-x-2 ml-3 mt-3">
           <data.apps.logo /> {/* Renders the app logo icon */}
-          <span className="font-semibold">{data.apps.name}</span> {/* Renders the app name */}
+          <span className="font-sans font-semibold">{data.apps.name}</span> {/* Renders the app name */}
         </div>
         {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>

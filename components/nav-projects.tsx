@@ -31,29 +31,25 @@ export function NavProjects({
   today: {
     name: string
     url: string
-    icon: LucideIcon
   }[]
   yesterday: {
     name: string
     url: string
-    icon: LucideIcon
   }[]
   previous30days: {
     name: string
     url: string
-    icon: LucideIcon
   }[]
 }) {
   const { isMobile } = useSidebar()
 
   // Helper function to render a list of projects
-  const renderProjects = (projects: { name: string; url: string; icon: LucideIcon }[]) => (
+  const renderProjects = (projects: { name: string; url: string }[]) => (
     <SidebarMenu>
       {projects.map((item) => (
         <SidebarMenuItem key={item.name}>
           <SidebarMenuButton asChild>
             <a href={item.url}>
-              <item.icon />
               <span>{item.name}</span>
             </a>
           </SidebarMenuButton>
