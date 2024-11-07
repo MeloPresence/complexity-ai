@@ -3,9 +3,23 @@
 import { useFirebaseUser } from "@/lib/firebase/user"
 import { type User } from "firebase/auth"
 import { useEffect, useState } from "react"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
 import { ThemeProvider } from "@/components/theme-provider"
+
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
 
 export default function Layout({
   anonymous,
@@ -40,13 +54,34 @@ export default function Layout({
         >
           <SidebarProvider>
             <AppSidebar />
-            <main className="flex-1 flex-grow flex items-center justify-center h-screen">
-              <SidebarTrigger className="absolute top-4 left-1" />
-              {isAuthenticated ? authenticated : anonymous}
-            </main>
+            <SidebarInset>
+              <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                <div className="flex items-center gap-2 px-4">
+                  <SidebarTrigger className="-ml-1" />
+                  <Separator orientation="vertical" className="mr-2 h-4" />
+                  <Breadcrumb>
+                    <BreadcrumbList>
+                      <BreadcrumbItem className="hidden md:block">
+                        <BreadcrumbLink href="#">
+                          Building Your Application
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator className="hidden md:block" />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </BreadcrumbList>
+                  </Breadcrumb>
+                </div>
+              </header>
+                  {/* Content for authenticated or anonymous user */}
+                  <main className="flex items-center justify-center min-h-screen">
+                    {isAuthenticated ? authenticated : anonymous}
+                  </main>
+            </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

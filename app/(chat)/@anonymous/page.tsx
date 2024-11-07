@@ -8,7 +8,6 @@ import { Message } from "ai"
 import { useChat } from "ai/react"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
 
 export default function AnonymousChatPage() {
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
@@ -133,10 +132,10 @@ export default function AnonymousChatPage() {
               <p>
                 How can I assist you today?
               </p>
-              {/* <p>
+              <p>
                 <Link href="/login">Log in</Link> or{" "}
                 <Link href="/register">register</Link> to access more features
-              </p> */}
+              </p>
             </div>
           </div>
         )}
