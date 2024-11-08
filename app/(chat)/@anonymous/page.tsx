@@ -100,7 +100,7 @@ export default function AnonymousChatPage() {
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
-      <div className="flex flex-col w-full gap-4">
+      <div className="flex flex-col w-full gap-4 dark:bg-neutral-800">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
           <div className="flex flex-col gap-2 items-center min-h-full ml-60 mr-60">
@@ -128,14 +128,15 @@ export default function AnonymousChatPage() {
         ) : (
           // No messages (new conversation)
           <div className="justify-center h-[360px] w-full md:w-[100%] pt-20">
-            <div className="font-sans text-[32px] font-semibold text-center py-40 flex flex-col text-stone-700">
+            <div className="font-sans text-[32px] font-semibold text-center gap-4 py-40 flex flex-col text-stone-700 dark:text-white">
               <p>
                 How can I assist you today?
               </p>
+              <div className="font-sans font-extralight text-[14px] dark:text-stone-400">
               <p>
-                <Link href="/login">Log in</Link> or{" "}
-                <Link href="/register">register</Link> to access more features
+                Sign up or login to access more features
               </p>
+              </div>
             </div>
           </div>
         )}

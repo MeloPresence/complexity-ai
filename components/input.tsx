@@ -60,7 +60,7 @@ export function ChatInput({
 
   return (
     <form
-      className="flex flex-col gap-1 items-center sticky bottom-0 bg-white"
+      className="flex flex-col gap-1 items-center sticky bottom-0 bg-white dark:bg-neutral-800"
       onSubmit={handleSubmit}
     >
       {files && files.length > 0 && (
@@ -93,9 +93,9 @@ export function ChatInput({
         </div>
       )}
 
-      <div className="flex bg-zinc-100 rounded-3xl p-3 py-1 w-full md:max-w-[810px] max-w-[calc(100dvw-32px)]">
+      <div className="flex bg-zinc-100 dark:bg-neutral-700 rounded-3xl p-3 py-1 w-full md:max-w-[810px] max-w-[calc(100dvw-32px)]">
       <textarea
-    className="outline-none flex-grow bg-transparent text-black resize-none overflow-y-auto max-h-40 text-left ml-2"
+    className="outline-none flex-grow bg-transparent text-black dark:text-white resize-none overflow-y-auto max-h-40 text-left ml-2"
     placeholder="Send a message..."
     value={input}
     onChange={handleInputChange}
@@ -134,7 +134,7 @@ export function ChatInput({
         {!isLoading && ((error && isNewInputAvailable) || !error) && (
             <button
               type="submit"
-              className="bg-zinc-100 rounded-full p-2"
+              className="bg-zinc-100 dark:bg-neutral-700 rounded-full p-2"
               title="Send"
               disabled={isLoading}
             >
@@ -143,7 +143,7 @@ export function ChatInput({
           )}
       </div>
       {error && <div className="text-xs text-red">An error occurred.</div>}
-      <div className="text-xs">Press Enter to send</div>
+      <div className="text-xs dark:text-stone-400">Press Enter to send</div>
     </form>
   )
 }

@@ -113,15 +113,15 @@ export function ChatBubble({
     >
       <div className={`flex gap-2 ${
           message.role === "assistant"
-            ? "bg-stone-100 text-black max-w-[70%]" // AI bubble
-            : "bg-stone-800 text-white max-w-[70%]" // User bubble
+            ? "bg-stone-100 text-black max-w-[70%] dark:bg-transparent dark:text-white" // AI bubble
+            : "bg-stone-800 text-white max-w-[70%] dark:bg-neutral-700 dark:text-white" // User bubble
         } rounded-3xl p-3 ${message.role === "user" ? "ml-auto" : "mr-auto"}`} // Align right for user
       >
 
         {/*Message*/}
         {isEditModeEnabled ? (
           <textarea
-          className="max-w-full text-[14px] outline-none resize-y p-2"
+          className="max-w-full text-[16px] outline-none resize-y p-2"
             defaultValue={editInput}
             onChange={(event) => {
               setEditInput(event.target.value)
@@ -130,7 +130,7 @@ export function ChatBubble({
         ) : (
           <div className="flex flex-col gap-1 max-w-full">
             {/*Text content*/}
-            <div className="text-[14px] flex flex-col gap-4 markdown">
+            <div className="text-[16px] flex flex-col gap-4 markdown">
               {message.role === "assistant" ? (
                 <Markdown>{message.content}</Markdown>
               ) : (

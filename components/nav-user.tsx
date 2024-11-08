@@ -1,4 +1,5 @@
 "use client"
+import Link from "next/link"
 
 import {
   BadgeCheck,
@@ -88,7 +89,9 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuItem>
               <LogOut />
+              <Link href="/login">
               Log out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
