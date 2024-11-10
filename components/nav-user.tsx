@@ -82,16 +82,21 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+            <button className="flex items-center w-full p-1">
+            <BadgeCheck className="mr-2" />
+            Account
+            </button>
+            </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuItem>
-              <LogOut />
-              <Link href="/login">
-              Log out
-              </Link>
+
+            <DropdownMenuItem asChild>
+            <Link href="/login">
+            <button className="flex items-center w-full p-1">
+            <LogOut className="mr-2" />
+            Log out
+            </button>
+            </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

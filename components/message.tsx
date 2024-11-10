@@ -115,13 +115,13 @@ export function ChatBubble({
           message.role === "assistant"
             ? "bg-stone-100 text-black max-w-[70%] dark:bg-transparent dark:text-white" // AI bubble
             : "bg-stone-800 text-white max-w-[70%] dark:bg-neutral-700 dark:text-white" // User bubble
-        } rounded-3xl p-3 ${message.role === "user" ? "ml-auto" : "mr-auto"}`} // Align right for user
+        } rounded-3xl px-3 py-2 ${message.role === "user" ? "ml-auto" : "mr-auto"}`} // Align right for user
       >
 
         {/*Message*/}
         {isEditModeEnabled ? (
           <textarea
-          className="max-w-full text-[16px] outline-none resize-y p-2"
+          className="max-w-full text-[16px] min-h-200px resize-y p-2 bg-transparent"
             defaultValue={editInput}
             onChange={(event) => {
               setEditInput(event.target.value)
