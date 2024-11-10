@@ -1,5 +1,9 @@
 import { MessageTreeNode, type MessageTreeNodeDataModel } from "@/lib/message"
-import type { DocumentReference, DocumentSnapshot } from "@firebase/firestore"
+import {
+  type DocumentReference,
+  type DocumentSnapshot,
+  type WriteResult,
+} from "firebase-admin/firestore"
 
 export interface ConversationDataModel {
   name: string
@@ -16,9 +20,18 @@ export class Conversation {
     private messageTree: MessageTreeNode,
   ) {}
 
-  public toJson(): ConversationDataModel {
+  public static fromModel(data: ConversationDataModel): Conversation {
+    return new Conversation(
+      data.name,
+      data.userId,
+      data.isPublic,
+      MessageTreeNode.fromModel(data.messageTree),
+    )
+  }
+
+  public toModel(): ConversationDataModel {
     const { name, userId, isPublic, messageTree: messageTreeInstance } = this
-    const messageTree = messageTreeInstance.toJson()
+    const messageTree = messageTreeInstance.toModel()
     return {
       name,
       userId,
@@ -31,16 +44,16 @@ export class Conversation {
 export interface ConversationServiceInterface {
   createConversation(
     conversation: Conversation,
-  ): Promise<DocumentReference<Conversation, ConversationDataModel>> // TODO: Return type should be generalized, not Firestore
+  ): Promise<DocumentReference<Conversation, ConversationDataModel>> // TODO: Generalize Firestore return type
 
-  deleteConversation(conversationId: string): Promise<void>
+  deleteConversation(conversationId: string): Promise<WriteResult> // TODO: Generalize Firestore return type
 
   updateConversation(
     conversationId: string,
     conversation: Conversation,
-  ): Promise<void>
+  ): Promise<WriteResult> // TODO: Generalize Firestore return type
 
   getConversation(
     conversationId: string,
-  ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> // TODO: Return type should be generalized, not Firestore
+  ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> // TODO: Generalize Firestore return type
 }

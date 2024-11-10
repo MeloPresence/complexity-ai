@@ -3,17 +3,15 @@ import {
   type ConversationDataModel,
   type ConversationServiceInterface,
 } from "@/lib/conversation"
+import { MessageTreeNode } from "@/lib/message"
 import { db } from "@/lib/server/firebase/app"
 import {
-  addDoc,
-  deleteDoc,
-  doc,
+  type CollectionReference,
   type DocumentReference,
   type DocumentSnapshot,
   type FirestoreDataConverter,
-  getDoc,
-  updateDoc,
-} from "@firebase/firestore"
+  type WriteResult,
+} from "firebase-admin/firestore"
 
 const CONVERSATIONS_TABLE_NAME = "conversations"
 
@@ -21,17 +19,26 @@ const conversationConverter: FirestoreDataConverter<
   Conversation,
   ConversationDataModel
 > = {
-  fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options)
-    return new Conversation(data.name, data.userId, data.isPublic)
+  toFirestore: (conversation) => (conversation as Conversation).toModel(),
+  fromFirestore: (snapshot) => {
+    const data = snapshot.data() as ConversationDataModel
+    return new Conversation(
+      data.name,
+      data.userId,
+      data.isPublic,
+      MessageTreeNode.fromModel(data.messageTree),
+    )
   },
-  toFirestore: (conversation) => conversation.toJson(),
 }
 
 export class ConversationService implements ConversationServiceInterface {
-  private collectionRef: CollectionRef<Conversation, ConversationDataModel>
+  private readonly collectionRef: CollectionReference<
+    Conversation,
+    ConversationDataModel
+  >
 
   public constructor() {
+    // TODO: Undo this converter nonsense because it's redundant in the current client-server architecture
     this.collectionRef = db
       .collection(CONVERSATIONS_TABLE_NAME)
       .withConverter(conversationConverter)
@@ -40,26 +47,37 @@ export class ConversationService implements ConversationServiceInterface {
   public async createConversation(
     conversation: Conversation,
   ): Promise<DocumentReference<Conversation, ConversationDataModel>> {
-    return addDoc(collectionRef, conversation)
+    return this.collectionRef.add(conversation)
   }
 
-  public async deleteConversation(conversationId: string): Promise<void> {
-    const documentRef = doc(collectionRef, conversationId)
-    return deleteDoc(documentRef)
+  public async deleteConversation(
+    conversationId: string,
+  ): Promise<WriteResult> {
+    const documentRef = this.collectionRef.doc(conversationId)
+    return documentRef.delete()
   }
 
   public async updateConversation(
     conversationId: string,
     conversation: Conversation,
-  ): Promise<void> {
-    const documentRef = doc(collectionRef, conversationId)
-    return updateDoc(documentRef, conversation)
+  ): Promise<WriteResult> {
+    const documentRef = this.collectionRef.doc(conversationId)
+    return documentRef.set(conversation) // .update() does not use the converter
   }
 
   public async getConversation(
     conversationId: string,
   ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> {
-    const documentRef = doc(collectionRef, conversationId)
-    return getDoc(documentRef)
+    const documentRef = this.collectionRef.doc(conversationId)
+    return documentRef.get()
+  }
+
+  public async getConversationList(userId: string) {
+    const result = await this.collectionRef
+      .where("userId", "==", userId)
+      .select("name", "isPublic")
+      .get()
+    console.log("getConversationList", result.docs)
+    return result.docs
   }
 }

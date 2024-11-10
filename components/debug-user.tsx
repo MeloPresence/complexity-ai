@@ -1,5 +1,3 @@
-"use client" // Firebase does client-side authentication!
-
 import { Button } from "@/components/ui/button"
 import { signOut } from "@/lib/client/firebase/auth"
 import { useFirebaseUser } from "@/lib/client/firebase/user"
@@ -7,13 +5,13 @@ import { User } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-export default function AuthenticatedChatPage() {
+export function DebugUserInfo() {
   const user: User | null | undefined = useFirebaseUser()
   const router = useRouter()
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const [debugUserData, setDebugUserData] = useState<any>({})
   useEffect(() => {
-    console.debug("(chat)/@authenticated/page.tsx useEffect", { user })
+    console.debug("@/components/debug-user.tsx useEffect", { user })
     if (user === undefined) return
     if (user) {
       setDebugUserData({
@@ -39,9 +37,11 @@ export default function AuthenticatedChatPage() {
   }
 
   return (
-    <div>
+    <div className="w-full">
       Authenticated Chat Page placeholder
-      <div>{JSON.stringify(debugUserData, null, 2)}</div>
+      <div className="whitespace-pre">
+        {JSON.stringify(debugUserData, null, 2)}
+      </div>
       <Button onClick={handleSignOut}>Sign out</Button>
     </div>
   )

@@ -12,7 +12,7 @@ import { useEffect, useState } from "react"
  * If a `User` is returned and not `User.isAnonymous`, the user is authenticated
  */
 export function useFirebaseUser() {
-  const [user, setUser] = useState<User | null | undefined>()
+  const [user, setUser] = useState<User | null | undefined>(undefined)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((authUser: User | null) => {
@@ -25,4 +25,16 @@ export function useFirebaseUser() {
   }, [])
 
   return user
+}
+
+export function useIsAuthenticated() {
+  const user: User | null | undefined = useFirebaseUser()
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (user === undefined) return
+    setIsAuthenticated(Boolean(user && !user.isAnonymous && user.emailVerified))
+  }, [user])
+
+  return isAuthenticated
 }

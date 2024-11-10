@@ -1,10 +1,10 @@
+import type { PossiblyUploadedAttachment } from "@/lib/message"
 import {
   FileState,
   GoogleAIFileManager,
   UploadFileResponse,
 } from "@google/generative-ai/server"
 import type {
-  Attachment,
   CoreMessage,
   CoreUserMessage,
   FilePart,
@@ -18,13 +18,19 @@ const FALLBACK_MIME_TYPE = "application/octet-stream"
 const fileManager = new GoogleAIFileManager(
   process.env.GOOGLE_GENERATIVE_AI_API_KEY as string,
 )
-export type PossiblyUploadedAttachment = Attachment & {
-  filesApiUri?: string // Gemini File APIs
+
+export type ModdedFilePart = FilePart & {
+  name?: string
+  storageBucketUri?: string // Our own
+  geminiFilesApiUri?: string // Gemini File APIs
+  geminiFilesApiExpirationTimestamp?: number // Timestamp
 }
+export type ModdedUserContent = Exclude<UserContent, FilePart> | ModdedFilePart
 export type ModdedCoreUserMessage = CoreUserMessage & {
+  content: ModdedUserContent
   experimental_attachments?: PossiblyUploadedAttachment[]
 }
-export type Message =
+export type ModdedCoreMessage =
   | Exclude<CoreMessage, CoreUserMessage>
   | ModdedCoreUserMessage
 
@@ -51,15 +57,24 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
     modifiedMessage.content = [...modifiedMessage.content, textPart]
   }
   if (message?.experimental_attachments) {
-    const fileParts: FilePart[] = []
+    const fileParts: ModdedFilePart[] = []
     for (const attachment of message.experimental_attachments) {
-      if (attachment.filesApiUri) {
+      if (
+        attachment.geminiFilesApiExpirationTimestamp &&
+        attachment.geminiFilesApiExpirationTimestamp > Date.now() / 1000 &&
+        attachment.geminiFilesApiUri
+      ) {
         const { url, ...rest } = attachment
         console.log("Reusing uploaded file", { file: rest })
-        const filePart: FilePart = {
+        const filePart: ModdedFilePart = {
           type: "file",
-          data: attachment.filesApiUri,
+          data: attachment.geminiFilesApiUri,
           mimeType: attachment.contentType || FALLBACK_MIME_TYPE,
+          name: attachment.name,
+          geminiFilesApiUri: attachment.geminiFilesApiUri,
+          storageBucketUri: attachment.storageBucketUri,
+          geminiFilesApiExpirationTimestamp:
+            attachment.geminiFilesApiExpirationTimestamp,
         }
         fileParts.push(filePart)
       } else {
@@ -87,6 +102,8 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
           )
         }
 
+        // TODO: Upload this to our own storage bucket next BUT WE NEED A PAID FIREBASE PLAN
+
         rm(filePath)
 
         if (fileMetadataResponse.state === FileState.FAILED) {
@@ -94,13 +111,26 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
         }
 
         console.log("Uploaded file", { file: fileMetadataResponse })
-        const filePart: FilePart = {
+        const geminiFilesApiExpirationTimestamp =
+          Date.parse(fileMetadataResponse.expirationTime) / 1000
+        const geminiFilesApiUri = uploadFileResponse.file.uri
+        const filePart: ModdedFilePart = {
           type: "file",
           data: new URL(fileMetadataResponse.uri),
           mimeType: fileMetadataResponse.mimeType,
+          name:
+            attachment.name ||
+            fileMetadataResponse.displayName ||
+            fileMetadataResponse.name,
+          storageBucketUri: attachment.storageBucketUri,
+          geminiFilesApiUri,
+          geminiFilesApiExpirationTimestamp,
         }
         fileParts.push(filePart)
-        attachment.filesApiUri = uploadFileResponse.file.uri
+        // Ugly but this is used to send back information of the URIs of the uploaded file in onFinish
+        attachment.geminiFilesApiUri = geminiFilesApiUri
+        attachment.geminiFilesApiExpirationTimestamp =
+          geminiFilesApiExpirationTimestamp
       }
     }
     modifiedMessage.content = [...modifiedMessage.content, ...fileParts]
@@ -110,7 +140,7 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
 }
 
 export async function storeMessages(
-  messages: Message[],
+  messages: ModdedCoreMessage[],
   conversationId?: string,
 ) {
   // How to store attachments?

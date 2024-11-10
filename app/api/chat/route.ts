@@ -1,12 +1,14 @@
+import { generateTitle } from "@/actions/title"
 import { ConversationService } from "@/lib/server/firebase/firestore"
 import {
-  Message,
+  type ModdedCoreMessage,
   type ModdedCoreUserMessage,
   storeMessages,
   transformMessage,
 } from "@/lib/server/message"
 import { google } from "@ai-sdk/google"
-import { StreamData, streamText } from "ai"
+import { type CoreAssistantMessage, StreamData, streamText } from "ai"
+import { NextRequest } from "next/server"
 
 const SYSTEM_PROMPT = `
   You are Complexity AI. You are a helpful document summarization specialist.
@@ -20,17 +22,19 @@ const SYSTEM_PROMPT = `
 
 const conversationService = new ConversationService()
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const {
     messages,
     conversationId,
   }: {
-    messages: Message[]
+    messages: ModdedCoreMessage[]
     conversationId?: string
   } = await req.json()
   if (!messages.length) throw new Error("No messages included in API request")
 
-  const multiModalMessages = await Promise.all(
+  console.log("Pre-transformation", JSON.stringify(messages, null, 2))
+
+  const multiModalMessages: ModdedCoreMessage[] = await Promise.all(
     messages.map((message) => {
       if (message.role !== "user") return (async () => message)()
       return transformMessage(message)
@@ -45,20 +49,31 @@ export async function POST(req: Request) {
     system: SYSTEM_PROMPT,
     messages: multiModalMessages,
     async onFinish({ text }) {
-      // The client should delete this immediately because this may interfere with message editing branches
+      // The client should delete this annotation immediately because this may interfere with message editing branches
       if (latestUserMessage.experimental_attachments)
         data.appendMessageAnnotation({
           previousUserMessageAttachments:
             latestUserMessage.experimental_attachments.map(
-              ({ url, ...rest }) => rest,
+              ({
+                url, // Remove the URL, which is just a base 64 binary blob
+                ...rest // Send back information of the URIs of the uploaded file
+              }) => rest,
             ),
         })
+      if (
+        !conversationId || // New conversation
+        messages.length === 3 || // Using information from the AI's first response
+        (messages.length - 1) % 6 === 0 // Update it every 6th message after the first
+      ) {
+        const title = await generateTitle(multiModalMessages)
+        data.appendMessageAnnotation({ title })
+      }
       data.close()
 
       // Remove message annotations first
-      // Also make sure the client-side action of adding the filesApiUri to the last user message is reflected here
+      // Also make sure the client-side action of adding the geminiFilesApiUri to the last user message is reflected here
 
-      const latestAssistantMessage = {
+      const latestAssistantMessage: CoreAssistantMessage = {
         role: "assistant",
         content: [{ type: "text", text }],
       }

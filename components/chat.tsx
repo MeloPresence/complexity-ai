@@ -1,34 +1,54 @@
 "use client"
 
+import { createConversation, updateConversation } from "@/actions/conversations"
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
+import { useFirebaseUser, useIsAuthenticated } from "@/lib/client/firebase/user"
+import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
-import { Message } from "ai"
-import { useChat } from "ai/react"
+import { type Message as UiMessage, useChat } from "ai/react"
+import type { User } from "firebase/auth"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-export default function AnonymousChatPage() {
+export function Chat({
+  conversationId: originalConversationId = null,
+}: {
+  conversationId?: string | null
+}) {
+  const rootMessageTreeNode = new MessageTreeNode()
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
     useState<boolean>(false)
-  const [latestMessageTreeNode, setLatestMessageTreeNode] = useState(
-    new MessageTreeNode(),
-  )
+  const [latestMessageTreeNode, setLatestMessageTreeNode] =
+    useState(rootMessageTreeNode)
 
   const currentMessageNodePath = useMemo<MessageTreeNode[]>(
     () => latestMessageTreeNode.getMessageNodePath(),
     [latestMessageTreeNode],
   )
-  const customMessages = useMemo<Message[]>(
+  const customMessages = useMemo<UiMessage[]>(
     () => currentMessageNodePath.map((node) => node.getMessage()!),
     [currentMessageNodePath],
   )
 
   const prevMessagesCount = useRef(0)
 
+  const user: User | null | undefined = useFirebaseUser()
+  const isAuthenticated = useIsAuthenticated()
+
   const chat = useChat({
     keepLastMessageOnError: true,
+    // ISSUE: useEffect is not yet triggered
+    // I can't really just hack in sending the message tree in this request because what about message editing and message branch swapping?
+    // Maybe I should just POST the tree to /api/conversations after the useEffect?
+    // If the user newly loads a /chat/<id>c, GET the tree at /api/conversations first
+    // https://sdk.vercel.ai/examples/next/chat/use-chat-custom-body
+    // ts-expect-error Somehow the return type isn't a JSONValue???
+    // experimental_prepareRequestBody: ({ messages }) => {
+    //   console.log("experimental_prepareRequestBody", { messages })
+    //   return { messages }
+    // },
     onError: (error: Error) => {
       // TODO: Development purposes only
       alert(`DEV: ${error}\nCheck console.`)
@@ -39,41 +59,62 @@ export default function AnonymousChatPage() {
 
   const [files, setFiles] = useState<FileList | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [conversationTitle, setConversationTitle] = useState<string | null>(
+    null,
+  )
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  function consumeAnnotations(latestAssistantMessage: Message) {
+  function consumeAnnotations(latestAssistantMessage: UiMessage) {
     if (latestAssistantMessage.annotations) {
       const annotations = latestAssistantMessage.annotations
-      if (
+      for (const annotation of annotations) {
         // TODO: Maybe use zod? Or is this type of "optional but strict programming" better?
-        annotations[0] &&
-        typeof annotations[0] === "object" &&
-        !Array.isArray(annotations[0]) &&
-        annotations[0].previousUserMessageAttachments &&
-        typeof annotations[0].previousUserMessageAttachments === "object" &&
-        Array.isArray(annotations[0].previousUserMessageAttachments)
-      ) {
-        const latestUserMessage = messages.at(-2)!
-        annotations[0].previousUserMessageAttachments.forEach((attachment) => {
-          if (
-            attachment &&
-            typeof attachment === "object" &&
-            !Array.isArray(attachment) &&
-            typeof attachment.filesApiUri === "string"
-          ) {
-            // Silently modify without triggering a rerender?
-            latestUserMessage.experimental_attachments!.forEach(
-              (oldAttachment) =>
-                // To show the encrypted Gemini Files API asset to the user, I would need to "tunnel" the request?
-                // But files stored there are temporary, so really I should be storing it in my database
-                // @ts-expect-error Somehow I should override the built-in Attachment type if possible?
-                (oldAttachment.filesApiUri = attachment.filesApiUri),
-            )
-          }
-        })
+        if (
+          !annotation ||
+          typeof annotation !== "object" ||
+          Array.isArray(annotation)
+        )
+          continue
+        if (
+          annotation.previousUserMessageAttachments &&
+          typeof annotation.previousUserMessageAttachments === "object" &&
+          Array.isArray(annotation.previousUserMessageAttachments)
+        ) {
+          const latestUserMessage = messages.at(-2)!
+          annotation.previousUserMessageAttachments.forEach((attachment) => {
+            if (
+              attachment &&
+              typeof attachment === "object" &&
+              !Array.isArray(attachment) &&
+              typeof attachment.geminiFilesApiUri === "string"
+            ) {
+              // Silently modify without triggering a rerender?
+              latestUserMessage.experimental_attachments!.forEach(
+                (oldAttachment) => {
+                  // To show the encrypted Gemini Files API asset to the user, I would need to "tunnel" the request?
+                  // But files stored there are temporary, so really I should be storing it in my database
+                  // @ts-expect-error Somehow I should override the built-in Attachment type if possible?
+                  oldAttachment.geminiFilesApiUri =
+                    attachment.geminiFilesApiUri as string | undefined
+                  // @ts-expect-error Somehow I should override the built-in Attachment type if possible?
+                  oldAttachment.geminiFilesApiExpirationTimestamp =
+                    attachment.geminiFilesApiExpirationTimestamp as
+                      | string
+                      | undefined
+                  // @ts-expect-error Somehow I should override the built-in Attachment type if possible?
+                  oldAttachment.storageBucketUri =
+                    attachment.storageBucketUri as string | undefined
+                  // TODO: Remove url (base-64 binary blob) if already uploaded to storage bucket
+                },
+              )
+            }
+          })
+        } else if (annotation.title && typeof annotation.title === "string") {
+          setConversationTitle(annotation.title)
+        }
       }
       console.log(latestAssistantMessage, latestAssistantMessage.annotations)
       // Silently remove annotations without triggering a rerender?
@@ -141,8 +182,35 @@ export default function AnonymousChatPage() {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [messages])
 
+  const [conversationId, setConversationId] = useState<string | null>(
+    originalConversationId,
+  )
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const rootNode = latestMessageTreeNode.getRootNode()
+      const conversation = new Conversation(
+        conversationTitle || "Untitled",
+        user!.uid,
+        false,
+        rootNode,
+      )
+      console.log("useEffect latestMessageTreeNode", rootNode)
+      if (!conversationId) {
+        createConversation(conversation.toModel()).then((id) =>
+          setConversationId(id),
+        )
+      } else {
+        updateConversation(conversationId, conversation.toModel())
+      }
+    }
+  }, [latestMessageTreeNode])
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
+      <div className="w-full">
+        <div>Title: {conversationTitle || "no title"}</div>
+        <div>ID: {conversationId || "no ID"}</div>
+      </div>
       <div className="flex flex-col w-full justify-between gap-4">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
