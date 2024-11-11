@@ -1,3 +1,4 @@
+import { getConversationList } from "@/actions/conversations"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,12 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { signOut } from "@/lib/client/firebase/auth"
+import { User } from "firebase/auth"
 import { ChevronUp, MoreHorizontal, User2 } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 // Main menu items.
 const items = [
@@ -27,33 +33,33 @@ const items = [
     title: "Today",
     url: "#",
   },
-  {
-    title: "Yesterday",
-    url: "#",
-  },
-  {
-    title: "Previous 30 days",
-    url: "#",
-  },
-  {
-    title: "September",
-    url: "#",
-  },
+  // {
+  //   title: "Yesterday",
+  //   url: "#",
+  // },
+  // {
+  //   title: "Previous 30 days",
+  //   url: "#",
+  // },
+  // {
+  //   title: "September",
+  //   url: "#",
+  // },
 ]
 
-// Submenu items.
-const subItems = [
-  {
-    title: "Dolphin rate in 2023",
-    url: "#",
-  },
-  {
-    title: "The Secret of NIMH video",
-    url: "#",
-  },
-]
+export function AppSidebar({ user }: { user: User | null | undefined }) {
+  const router = useRouter()
+  const handleSignOut = async () => {
+    await signOut()
+    router.push("/login")
+  }
+  const [conversations, setConversations] = useState<any[]>([])
+  useEffect(() => {
+    if (user)
+      // TODO: Get conversation list again when updates happen in chat
+      getConversationList(user.uid).then((result) => setConversations(result))
+  }, [user])
 
-export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
@@ -72,24 +78,27 @@ export function AppSidebar() {
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
             <SidebarGroupLabel className="truncate font-semibold text-black text-lg">
-              Complexity Ai
+              Complexity AI
             </SidebarGroupLabel>
           </div>
           <SidebarGroupContent>
             <SidebarMenu className="py-4">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/">New chat</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <span>{item.title}</span>
-                    </a>
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                   <SidebarMenuSub>
-                    {subItems.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
+                    {conversations.map((conversation) => (
+                      <SidebarMenuSubItem key={conversation.id}>
                         <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            <span>{subItem.title}</span>
+                          <Link href={`/${conversation.id}`}>
+                            {conversation.name}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuAction>
@@ -109,7 +118,7 @@ export function AppSidebar() {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </a>
+                          </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
@@ -126,7 +135,7 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Username
+                  <User2 /> {user?.displayName || user?.email}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -140,7 +149,7 @@ export function AppSidebar() {
                   <span>Dark mode</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="px-4 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-gray-700">
-                  <span>Log out</span>
+                  <button onClick={handleSignOut}>Log out</button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

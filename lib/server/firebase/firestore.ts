@@ -32,6 +32,7 @@ const conversationConverter: FirestoreDataConverter<
 }
 
 export class ConversationService implements ConversationServiceInterface {
+  // TODO: FIREBASE HAS A STRICT LIMIT IN DOCUMENT DEPTH!!!! SAVE THE MESSAGE TREE AS A JSON STRING!!!
   private readonly collectionRef: CollectionReference<
     Conversation,
     ConversationDataModel
@@ -66,10 +67,14 @@ export class ConversationService implements ConversationServiceInterface {
   }
 
   public async getConversation(
+    userId: string,
     conversationId: string,
   ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> {
     const documentRef = this.collectionRef.doc(conversationId)
-    return documentRef.get()
+    const data = await documentRef.get()
+    if (!data.exists || data.get("userId") !== userId)
+      throw new Error("Not found")
+    return data
   }
 
   public async getConversationList(userId: string) {
@@ -77,7 +82,12 @@ export class ConversationService implements ConversationServiceInterface {
       .where("userId", "==", userId)
       .select("name", "isPublic")
       .get()
-    console.log("getConversationList", result.docs)
-    return result.docs
+    return result.docs.map((doc) => ({
+      id: doc.id,
+      createTime: doc.createTime.toDate().toJSON(),
+      readTime: doc.readTime.toDate().toJSON(),
+      updateTime: doc.updateTime.toDate().toJSON(),
+      name: doc.get("name") || null,
+    }))
   }
 }

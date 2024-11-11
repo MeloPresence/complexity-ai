@@ -24,14 +24,18 @@ export async function updateConversation(
 }
 
 export async function getConversation(
-  id: string,
+  userId: string,
+  conversationId: string,
 ): Promise<ConversationDataModel> {
-  const result = await conversationService.getConversation(id)
+  const result = await conversationService.getConversation(
+    userId,
+    conversationId,
+  )
   const conversation = result.data()
   if (!conversation) throw new Error("Conversation not found")
   return conversation.toModel()
 }
 
 export async function getConversationList(userId: string): Promise<any[]> {
-  return conversationService.getConversationList(userId)
+  return await conversationService.getConversationList(userId)
 }

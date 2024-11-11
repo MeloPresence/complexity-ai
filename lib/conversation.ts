@@ -14,10 +14,10 @@ export interface ConversationDataModel {
 
 export class Conversation {
   public constructor(
-    private name: string,
+    private _name: string,
     private userId: string,
     private isPublic: boolean,
-    private messageTree: MessageTreeNode,
+    private _messageTree: MessageTreeNode,
   ) {}
 
   public static fromModel(data: ConversationDataModel): Conversation {
@@ -30,7 +30,7 @@ export class Conversation {
   }
 
   public toModel(): ConversationDataModel {
-    const { name, userId, isPublic, messageTree: messageTreeInstance } = this
+    const { name, userId, isPublic, _messageTree: messageTreeInstance } = this
     const messageTree = messageTreeInstance.toModel()
     return {
       name,
@@ -38,6 +38,14 @@ export class Conversation {
       isPublic,
       messageTree,
     }
+  }
+
+  get messageTree(): MessageTreeNode {
+    return this._messageTree
+  }
+
+  get name(): string {
+    return this._name
   }
 }
 
@@ -54,6 +62,7 @@ export interface ConversationServiceInterface {
   ): Promise<WriteResult> // TODO: Generalize Firestore return type
 
   getConversation(
+    userId: string,
     conversationId: string,
   ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> // TODO: Generalize Firestore return type
 }

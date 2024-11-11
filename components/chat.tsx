@@ -1,6 +1,10 @@
 "use client"
 
-import { createConversation, updateConversation } from "@/actions/conversations"
+import {
+  createConversation,
+  getConversation,
+  updateConversation,
+} from "@/actions/conversations"
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
@@ -10,6 +14,7 @@ import { MessageTreeNode } from "@/lib/message"
 import { type Message as UiMessage, useChat } from "ai/react"
 import type { User } from "firebase/auth"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 export function Chat({
@@ -17,6 +22,7 @@ export function Chat({
 }: {
   conversationId?: string | null
 }) {
+  const router = useRouter()
   const rootMessageTreeNode = new MessageTreeNode()
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
     useState<boolean>(false)
@@ -55,7 +61,7 @@ export function Chat({
       console.error(error, error.stack)
     },
   })
-  const { messages, isLoading } = chat
+  const { messages, setMessages, isLoading } = chat
 
   const [files, setFiles] = useState<FileList | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -197,24 +203,53 @@ export function Chat({
       )
       console.log("useEffect latestMessageTreeNode", rootNode)
       if (!conversationId) {
-        createConversation(conversation.toModel()).then((id) =>
-          setConversationId(id),
-        )
+        createConversation(conversation.toModel()).then((id) => {
+          setConversationId(id)
+          const newUrl = `/${id}`
+          window.history.replaceState(
+            {
+              ...window.history.state,
+              as: newUrl,
+              url: newUrl,
+            },
+            "",
+            newUrl,
+          )
+        })
       } else {
         updateConversation(conversationId, conversation.toModel())
       }
     }
   }, [latestMessageTreeNode])
+
+  useEffect(() => {
+    if (user && conversationId) {
+      getConversation(user.uid, conversationId)
+        .then((data) => {
+          const conversation = Conversation.fromModel(data)
+          setIsSwappingMessageTreeBranches(true)
+          const latestLeafNode = conversation.messageTree.getLatestLeafNode()
+          setLatestMessageTreeNode(latestLeafNode)
+          setConversationTitle(conversation.name)
+          const messages = latestLeafNode
+            .getMessageNodePath()
+            .map((node) => node.getMessage()!)
+          setMessages(messages)
+          prevMessagesCount.current = messages.length
+        })
+        .catch(() => router.push("/"))
+    }
+  }, [user, conversationId])
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
-      <div className="w-full">
-        <div>Title: {conversationTitle || "no title"}</div>
-        <div>ID: {conversationId || "no ID"}</div>
-      </div>
       <div className="flex flex-col w-full justify-between gap-4">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
           <div className="flex flex-col gap-2 items-center min-h-full w-full">
+            <div className="w-full">
+              <div>Title: {conversationTitle || "no title"}</div>
+              <div>ID: {conversationId || "no ID"}</div>
+            </div>
             {currentMessageNodePath.map((node, index) => (
               <ChatBubble
                 {...{
@@ -244,10 +279,12 @@ export function Chat({
                 Start messaging below. Drag and drop or paste a document to
                 extract and query information related to it.
               </p>
-              <p>
-                <Link href="/login">Log in</Link> or{" "}
-                <Link href="/register">register</Link> to access more features
-              </p>
+              {!user && (
+                <p>
+                  <Link href="/login">Log in</Link> or{" "}
+                  <Link href="/register">register</Link> to access more features
+                </p>
+              )}
             </div>
           </div>
         )}
