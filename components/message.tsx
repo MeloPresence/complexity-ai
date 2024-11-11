@@ -3,6 +3,8 @@ import { MessageTreeNode } from "@/utils/message"
 import type { useChat } from "ai/react"
 import React, { useCallback, useMemo, useState } from "react"
 
+import { ChevronLeftIcon, ChevronRightIcon, ClipboardIcon, CopyIcon, Pencil2Icon } from "@radix-ui/react-icons"
+
 const getTextFromDataUrl = (dataUrl: string): string => {
   const base64 = dataUrl.split(",")[1]
   // Yes, it's (Awful to Beautiful) for (Base64 to readable ASCII text)
@@ -105,19 +107,21 @@ export function ChatBubble({
   return (
     <div
       {...props}
-      className={`${className} group hover:bg-zinc-100 flex flex-col gap-1 px-4 w-full md:w-[500px] md:px-0 ${
+      className={`${className} group flex flex-col gap-1 w-full md:w-[100%] md:px-0 ${
         index === 0 ? "mt-20" : ""
       }`}
     >
-      <div className="flex gap-2">
-        {/*Sender icon*/}
-        <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
-          {message.role === "assistant" ? "🤖" : "👤"}
-        </div>
+      <div className={`flex gap-2 ${
+          message.role === "assistant"
+            ? "bg-stone-100 text-black max-w-[70%] dark:bg-transparent dark:text-white" // AI bubble
+            : "bg-stone-800 text-white max-w-[70%] dark:bg-neutral-700 dark:text-white" // User bubble
+        } rounded-3xl px-3 py-2 ${message.role === "user" ? "ml-auto" : "mr-auto"}`} // Align right for user
+      >
 
         {/*Message*/}
         {isEditModeEnabled ? (
           <textarea
+          className="max-w-full text-[16px] min-h-200px resize-y p-2 bg-transparent"
             defaultValue={editInput}
             onChange={(event) => {
               setEditInput(event.target.value)
@@ -126,7 +130,7 @@ export function ChatBubble({
         ) : (
           <div className="flex flex-col gap-1 max-w-full">
             {/*Text content*/}
-            <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 markdown">
+            <div className="text-[16px] flex flex-col gap-4 markdown">
               {message.role === "assistant" ? (
                 <Markdown>{message.content}</Markdown>
               ) : (
@@ -160,69 +164,74 @@ export function ChatBubble({
 
       {/*Bottom bar context menu (hidden when last message is still streaming)*/}
       {(!isLatestMessage || (isLatestMessage && !isLoading)) && (
-        <div
-          className={`${isEditModeEnabled ? "visible" : "invisible"} flex gap-1 text-sm bg-zinc-200 group-hover:visible`}
+      <div
+        className={`${isEditModeEnabled ? "visible" : "invisible"} flex gap-1 text-sm bg-transparent group-hover:visible`}
+      >
+    {message.role === "assistant" ? (
+      <div className="flex items-center gap-1"> {/* Left aligned for AI */}
+        <button
+          className="ml-2"
+          title="Copy"
+          onClick={() => copyToClipboard(message.content)}
         >
-          <div className="text-xs">
-            Bottom bar context menu for{" "}
-            {message.role === "assistant" ? "🤖" : "👤"}
-          </div>
-
-          {!isEditModeEnabled && (
-            <>
-              <button
-                className="bg-zinc-100"
-                onClick={() => copyToClipboard(message.content)}
-              >
-                Copy
-              </button>
-            </>
-          )}
-
-          {message.role === "assistant" ? (
-            <>{/*AI-specific actions*/}</>
-          ) : (
-            <>
-              {/*User-specific actions*/}
-              {isEditModeEnabled ? (
-                <>
-                  <button className="bg-zinc-100" onClick={disableEditMode}>
-                    Cancel
-                  </button>
-                  <button className="bg-zinc-100" onClick={handleSubmitForEdit}>
-                    Submit
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="bg-zinc-100" onClick={enableEditMode}>
-                    Edit
-                  </button>
-                  {numOfSiblings > 1 && (
-                    <>
-                      <div>
-                        {siblingIndex + 1}/{numOfSiblings}
-                      </div>
-                      <button
-                        className="bg-zinc-100"
-                        disabled={siblingIndex === 0}
-                        onClick={() => handleSwap(siblingIndex - 1)}
-                      >
-                        Swap left
-                      </button>
-                      <button
-                        className="bg-zinc-100"
-                        disabled={siblingIndex === numOfSiblings - 1}
-                        onClick={() => handleSwap(siblingIndex + 1)}
-                      >
-                        Swap right
-                      </button>
-                    </>
-                  )}
-                </>
-              )}
-            </>
-          )}
+          <CopyIcon />
+        </button>
+      </div>
+    ) : (
+      <div className="flex items-center gap-1 ml-auto"> {/* Right aligned for user */}
+        {isEditModeEnabled ? (
+          <>
+            <button
+              className="bg-transparent mr-2"
+              onClick={disableEditMode}
+            >
+              Cancel
+            </button>
+            <button className="bg-transparent" onClick={handleSubmitForEdit}>
+              Send
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+            className="mr-1"
+              title="Edit"
+              onClick={enableEditMode}
+            >
+              <Pencil2Icon />
+            </button>
+            <button
+            className="mr-1"
+              title="Copy"
+              onClick={() => copyToClipboard(message.content)}
+            >
+              <CopyIcon />
+            </button>
+            {numOfSiblings > 1 && (
+              <>
+                <div>
+                  {siblingIndex + 1}/{numOfSiblings}
+                </div>
+                <button
+                  className="bg-transparent"
+                  disabled={siblingIndex === 0}
+                  onClick={() => handleSwap(siblingIndex - 1)}
+                >
+                  <ChevronLeftIcon />
+                </button>
+                <button
+                  className="bg-transparent mr-2"
+                  disabled={siblingIndex === numOfSiblings - 1}
+                  onClick={() => handleSwap(siblingIndex + 1)}
+                >
+                  <ChevronRightIcon />
+                </button>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    )}
         </div>
       )}
     </div>
@@ -231,9 +240,8 @@ export function ChatBubble({
 
 export function LoadingChatBubble() {
   return (
-    <div className="flex flex-row gap-2 px-4 w-full md:w-[500px] md:px-0">
-      <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400"></div>
-      <div className="flex flex-col gap-1 text-zinc-400">
+    <div className="flex justify-start w-full ml-60 mr-60">
+      <div className="text-[16px] flex flex-col text-zinc-400">
         <div>hmm...</div>
       </div>
     </div>

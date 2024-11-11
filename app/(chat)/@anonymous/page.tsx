@@ -100,10 +100,10 @@ export default function AnonymousChatPage() {
 
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
-      <div className="flex flex-col w-full justify-between gap-4">
+      <div className="flex flex-col w-full gap-4 dark:bg-neutral-800">
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
-          <div className="flex flex-col gap-2 items-center min-h-full w-full">
+          <div className="flex flex-col gap-2 items-center min-h-full ml-60 mr-60">
             {currentMessageNodePath.map((node, index) => (
               <ChatBubble
                 {...{
@@ -127,16 +127,16 @@ export default function AnonymousChatPage() {
           </div>
         ) : (
           // No messages (new conversation)
-          <div className="h-[350px] px-4 w-full md:w-[500px] md:px-0 pt-20">
-            <div className="border rounded-lg p-6 flex flex-col gap-4 text-zinc-500 text-sm dark:text-zinc-400 dark:border-zinc-700">
+          <div className="justify-center h-[360px] w-full md:w-[100%] pt-20">
+            <div className="font-sans text-[32px] font-semibold text-center gap-4 py-40 flex flex-col text-stone-700 dark:text-white">
               <p>
-                Start messaging below. Drag and drop or paste a document to
-                extract and query information related to it.
+                How can I assist you today?
               </p>
+              <div className="font-sans font-extralight text-[14px] dark:text-stone-400">
               <p>
-                <Link href="/login">Log in</Link> or{" "}
-                <Link href="/register">register</Link> to access more features
+                Sign up or login to access more features
               </p>
+              </div>
             </div>
           </div>
         )}
