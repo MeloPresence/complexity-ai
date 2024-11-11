@@ -43,7 +43,7 @@ export default function DragAndDropFilePicker({
 
   return (
     <div
-      className="flex flex-row justify-center pb-20 bg-white dark:bg-zinc-900 min-h-dvh"
+      className="flex justify-center bg-white min-h-dvh w-full"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

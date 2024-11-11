@@ -1,6 +1,9 @@
 import TextFilePreview from "@/components/text-file-preview"
 import { isValidAttachment } from "@/lib/validation"
+import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons"
 import { type useChat } from "ai/react"
+import { useRef } from "react"
+import { HiOutlinePaperClip } from "react-icons/hi"
 
 export function ChatInput({
   files,
@@ -46,6 +49,19 @@ export function ChatInput({
     }
   }
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = event.target.files
+    if (uploadedFiles) {
+      const validFiles = Array.from(uploadedFiles).filter(isValidAttachment)
+
+      if (validFiles.length === uploadedFiles.length) {
+        setFiles(uploadedFiles)
+      } else {
+        alert("Only image and text files are allowed")
+      }
+    }
+  }
+
   const isNewInputAvailable = input || files?.length
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -62,69 +78,155 @@ export function ChatInput({
     setFiles(null)
   }
 
+  // File removal
+  const handleDeleteFile = (index: number) => {
+    if (!files) return
+    const updatedFilesArray = Array.from(files)
+    updatedFilesArray.splice(index, 1)
+
+    const dataTransfer = new DataTransfer()
+    updatedFilesArray.forEach((file) => dataTransfer.items.add(file))
+    setFiles(dataTransfer.files)
+  }
+
+  const formRef = useRef<HTMLFormElement>(null)
+
   return (
     <form
-      className="flex flex-col gap-2 items-center sticky bottom-0 bg-white"
+      className="flex flex-col gap-1 items-center sticky bottom-0 bg-white dark:bg-neutral-800"
       onSubmit={handleSubmit}
+      ref={formRef}
     >
       {files && files.length > 0 && (
-        <div className="flex flex-row gap-2 bottom-12 px-4 w-full md:w-[500px] md:px-0">
-          {Array.from(files).map((file) =>
+        <div className="flex flex-row gap-2 bottom-12 px-4 w-full md:w-[800px] md:px-0">
+          {Array.from(files).map((file, index) =>
             file.type.startsWith("image") ? (
-              <div key={file.name}>
+              <div key={file.name} className="relative">
                 <img
                   src={URL.createObjectURL(file)}
                   alt={file.name}
                   className="rounded-md w-16"
                 />
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ) : file.type.startsWith("text") ? (
               <div
                 key={file.name}
-                className="text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+                className="relative text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
               >
                 <TextFilePreview file={file} />
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ) : file.type.startsWith("application/pdf") ? (
               <div
                 key={file.name}
-                className="text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+                className="relative text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
               >
                 {file.name}
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ) : file.type.startsWith("audio/") ? (
-              <div key={file.name} className="w-28 h-16">
+              <div
+                key={file.name}
+                className="relative text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+              >
                 <audio controls>
                   <source src={URL.createObjectURL(file)} type={file.type} />
                   Your browser does not support the audio element.
                 </audio>
-                <div className="text-xs">{file.name}</div>
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ) : file.type.startsWith("video/") ? (
-              <div key={file.name} className="mb-3">
+              <div
+                key={file.name}
+                className="relative text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+              >
                 <video controls>
                   <source src={URL.createObjectURL(file)} type={file.type} />
                   Your browser does not support the video element.
                 </video>
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ) : (
-              <div key={file.name} className="mb-3">
-                <div>Type: {file.type}</div>
-                <div>Name: {file.name}</div>
+              <div
+                key={file.name}
+                className="relative text-[8px] leading-1 w-28 h-16 overflow-hidden text-zinc-500 border p-2 rounded-lg bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400"
+              >
+                {file.name} ({file.type})
+                <button
+                  onClick={() => handleDeleteFile(index)}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
               </div>
             ),
           )}
         </div>
       )}
 
-      <div className="flex gap-1 bg-zinc-100 rounded-md px-2 py-1.5 w-full dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]">
-        <input
-          className="outline-none flex-grow bg-transparent"
-          placeholder="Send a message..."
+      <div className="flex bg-zinc-100 dark:bg-neutral-700 rounded-3xl p-3 py-1 w-full md:max-w-[810px] max-w-[calc(100dvw-32px)]">
+        {/* Paperclip Icon Button for File Input */}
+        <div className="mr-auto py-2.5">
+          <label htmlFor="file-upload" className="cursor-pointer">
+            <HiOutlinePaperClip className="text-xl text-black dark:text-white" />
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            className="hidden"
+            onChange={handleFileUpload} // Implement this function for file upload handling
+          />
+        </div>
+
+        {/* Textarea for Message Input */}
+        <textarea
+          className="outline-none flex-grow bg-transparent text-black dark:text-white resize-none overflow-y-auto max-h-40 text-left ml-2"
+          placeholder="Send a message or drop a file"
           value={input}
           onChange={handleInputChange}
           onPaste={handlePaste}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault() // Prevent new line
+              formRef.current?.requestSubmit() // Call your submit function
+            }
+          }}
+          style={{
+            height: "40px",
+            maxHeight: "10rem", // Limit max height for vertical scrolling
+            overflowY: "auto", // Add vertical scrollbar when text overflows
+            textAlign: "left", // Center horizontally
+            paddingTop: "0.5rem", // Align text starting at top
+          }}
         />
+
+        {/* Retry Button for Error */}
         {error && !isNewInputAvailable && (
           <div>
             <button type="button" onClick={() => reload()}>
@@ -132,19 +234,32 @@ export function ChatInput({
             </button>
           </div>
         )}
+
+        {/* Stop Button for Loading */}
         {isLoading && (
           <div>
             <button type="button" onClick={stop}>
-              Stop
+              <StopIcon className="size-[18px] mr-2 mt-3" />
             </button>
           </div>
         )}
+
+        {/* Send Button */}
         {!isLoading && ((error && isNewInputAvailable) || !error) && (
-          <input type="submit" disabled={isLoading} />
+          <button
+            type="submit"
+            className="bg-zinc-100 dark:bg-neutral-700 rounded-full p-2"
+            title="Send"
+            disabled={isLoading}
+          >
+            <PaperPlaneIcon className="size-[18px]" />
+          </button>
         )}
       </div>
+      {/* Error Message */}
       {error && <div className="text-xs text-red">An error occurred.</div>}
-      <div className="text-xs">Press Enter to send</div>
+      {/* Hint Text */}
+      <div className="text-xs dark:text-stone-400 m-2">Press Enter to send</div>
     </form>
   )
 }
