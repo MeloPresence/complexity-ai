@@ -1,4 +1,5 @@
 import { Chat } from "@/components/chat"
+import { notFound } from "next/navigation"
 
 export default async function ChatPage({
   params,
@@ -7,7 +8,7 @@ export default async function ChatPage({
 }) {
   const { id: idArray } = await params
   console.log({ idArray })
-  if (idArray && idArray.length > 1) throw new Error("Not found")
+  if (idArray && idArray.length > 1) notFound()
   const conversationId = idArray?.[0]
 
   return <Chat {...{ conversationId }} />

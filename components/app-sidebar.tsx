@@ -23,40 +23,6 @@ const data = {
     name: "Complexity AI",
     logo: Command,
   },
-  today: [
-    {
-      name: "Design Engineering",
-      url: "#",
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-    },
-    {
-      name: "Travel",
-      url: "#",
-    },
-  ],
-  yesterday: [
-    {
-      name: "Team Meeting",
-      url: "#",
-    },
-    {
-      name: "Client Review",
-      url: "#",
-    },
-  ],
-  previous30days: [
-    {
-      name: "Project Planning",
-      url: "#",
-    },
-    {
-      name: "Developnent Spring",
-      url: "#",
-    },
-  ],
 }
 
 export function AppSidebar() {
@@ -86,11 +52,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects
-          today={conversations}
-          yesterday={[] || data.yesterday}
-          previous30days={[] || data.previous30days}
-        />
+        <NavProjects today={conversations} yesterday={[]} previous30days={[]} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

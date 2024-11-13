@@ -18,31 +18,28 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
 
+export type Item = {
+  id: string
+  name: string
+  url: string
+}
+
 export function NavProjects({
   today,
   yesterday,
   previous30days,
 }: {
-  today: {
-    name: string
-    url: string
-  }[]
-  yesterday: {
-    name: string
-    url: string
-  }[]
-  previous30days: {
-    name: string
-    url: string
-  }[]
+  today: Item[]
+  yesterday: Item[]
+  previous30days: Item[]
 }) {
   const { isMobile } = useSidebar()
 
   // Helper function to render a list of projects
-  const renderProjects = (projects: { name: string; url: string }[]) => (
+  const renderProjects = (projects: Item[]) => (
     <SidebarMenu>
       {projects.map((item) => (
-        <SidebarMenuItem key={item.name}>
+        <SidebarMenuItem key={item.id}>
           <SidebarMenuButton asChild>
             <Link href={item.url}>
               <span>{item.name}</span>
