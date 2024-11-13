@@ -1,156 +1,70 @@
 "use client" // Firebase does client-side authentication!
 
 import { AppSidebar } from "@/components/app-sidebar"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Header } from "@/components/header"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { useFirebaseUser, useIsAuthenticated } from "@/lib/client/firebase/user"
-import { type User } from "firebase/auth"
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import Link from "next/link"
+  IsAuthenticatedContext,
+  IsLoadingContext,
+  useFirebaseUser,
+} from "@/lib/client/firebase/user"
+import { getFirebaseAuthKey } from "@/lib/utils"
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const user: User | null | undefined = useFirebaseUser()
-  const isAuthenticated = useIsAuthenticated()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const { setTheme } = useTheme()
-
-  useEffect(() => {
-    console.debug("(chat)/layout.tsx useEffect", { user })
-    if (user === undefined) return
-    setIsLoading(false)
-  }, [user])
-
-  let page
-  const header = (
-    <header className="dark:bg-neutral-800 flex h-16 shrink-0 items-center transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-4">
-        {isAuthenticated && (
-          <>
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-          </>
-        )}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="#">
-                Building Your Application
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-      <div className="ml-auto flex">
-        <Link href="/register">
-          <button className="dark:text-white dark:hover:bg-neutral-600 font-semibold font-sans ml-auto flex bg-transparent text-black text-base px-4 py-2 hover:bg-accent rounded-md">
-            Sign Up
-          </button>
-        </Link>
-      </div>
-
-      <div className="flex justify-end items-center p-4 bg-gray-100 bg-transparent dark:bg-neutral-800">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <button
-                className="w-full cursor-pointer"
-                onClick={() => setTheme("light")}
-              >
-                Light
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <button
-                className="w-full cursor-pointer"
-                onClick={() => setTheme("dark")}
-              >
-                Dark
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <button
-                className="w-full cursor-pointer"
-                onClick={() => setTheme("system")}
-              >
-                System
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
-  )
-
+function MaybeSidebar({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useContext(IsAuthenticatedContext)
   if (isAuthenticated) {
-    page = (
+    return (
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
-          {header}
-          {/* Content for authenticated or anonymous user */}
-          <main className="flex items-center justify-center min-h-screen">
-            {children}
-          </main>
-        </SidebarInset>
+        <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
     )
   } else {
-    page = (
-      <>
-        {header}
-        {/* Content for authenticated or anonymous user */}
-        <main className="flex items-center justify-center min-h-screen">
-          {children}
-        </main>
-      </>
-    )
+    return <div>{children}</div>
   }
+}
 
-  return isLoading ? (
-    <div>Loading</div>
-  ) : (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {page}
-    </ThemeProvider>
+export default function Layout({ children }: { children: React.ReactNode }) {
+  const user = useFirebaseUser()
+
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  console.time("loading")
+  useEffect(() => {
+    if (user === undefined) return
+    console.timeEnd("loading")
+    console.debug("(chat)/layout.tsx useEffect", { user })
+    setIsLoading(false)
+  }, [user])
+
+  useEffect(() => {
+    getFirebaseAuthKey()
+      .then((value) => {
+        console.timeEnd("loading")
+        console.debug("getFirebaseAuthKey", value)
+        setIsLoading(false)
+        setIsAuthenticated(Boolean((value as unknown[]).length))
+      })
+      .catch(() => {
+        console.timeEnd("loading")
+        console.debug("getFirebaseAuthKey", undefined)
+        setIsLoading(false)
+        setIsAuthenticated(false)
+      })
+  })
+
+  return (
+    <IsLoadingContext.Provider value={isLoading}>
+      <IsAuthenticatedContext.Provider value={isAuthenticated}>
+        <MaybeSidebar>
+          <Header />
+          <main className="flex items-center justify-center min-h-screen">
+            {children}
+          </main>
+        </MaybeSidebar>
+      </IsAuthenticatedContext.Provider>
+    </IsLoadingContext.Provider>
   )
 }

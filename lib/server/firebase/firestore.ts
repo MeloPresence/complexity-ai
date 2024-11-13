@@ -3,7 +3,6 @@ import {
   type ConversationDataModel,
   type ConversationServiceInterface,
 } from "@/lib/conversation"
-import { MessageTreeNode } from "@/lib/message"
 import { db } from "@/lib/server/firebase/app"
 import {
   type CollectionReference,
@@ -22,17 +21,11 @@ const conversationConverter: FirestoreDataConverter<
   toFirestore: (conversation) => (conversation as Conversation).toModel(),
   fromFirestore: (snapshot) => {
     const data = snapshot.data() as ConversationDataModel
-    return new Conversation(
-      data.name,
-      data.userId,
-      data.isPublic,
-      MessageTreeNode.fromModel(data.messageTree),
-    )
+    return Conversation.fromModel(data)
   },
 }
 
 export class ConversationService implements ConversationServiceInterface {
-  // TODO: FIREBASE HAS A STRICT LIMIT IN DOCUMENT DEPTH!!!! SAVE THE MESSAGE TREE AS A JSON STRING!!!
   private readonly collectionRef: CollectionReference<
     Conversation,
     ConversationDataModel

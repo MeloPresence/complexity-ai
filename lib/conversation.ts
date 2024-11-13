@@ -1,4 +1,4 @@
-import { MessageTreeNode, type MessageTreeNodeDataModel } from "@/lib/message"
+import { MessageTreeNode } from "@/lib/message"
 import {
   type DocumentReference,
   type DocumentSnapshot,
@@ -9,7 +9,12 @@ export interface ConversationDataModel {
   name: string
   userId: string
   isPublic: boolean
-  messageTree: MessageTreeNodeDataModel
+  /**
+   * This is MessageTreeNodeDataModel stringified because Firestore has 20 depth limit
+   * But there is also a 1048487 bytes (~1 MB) limit
+   */
+  // TODO: Arbitrarily limit messages to ~10 length
+  messageTreeJson: string
 }
 
 export class Conversation {
@@ -25,18 +30,19 @@ export class Conversation {
       data.name,
       data.userId,
       data.isPublic,
-      MessageTreeNode.fromModel(data.messageTree),
+      MessageTreeNode.fromModel(JSON.parse(data.messageTreeJson)),
     )
   }
 
   public toModel(): ConversationDataModel {
     const { name, userId, isPublic, _messageTree: messageTreeInstance } = this
     const messageTree = messageTreeInstance.toModel()
+    const messageTreeJson = JSON.stringify(messageTree)
     return {
       name,
       userId,
       isPublic,
-      messageTree,
+      messageTreeJson,
     }
   }
 

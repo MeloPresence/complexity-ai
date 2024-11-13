@@ -2,11 +2,10 @@ import { generateTitle } from "@/actions/title"
 import {
   type ModdedCoreMessage,
   type ModdedCoreUserMessage,
-  storeMessages,
   transformMessage,
 } from "@/lib/server/message"
 import { google } from "@ai-sdk/google"
-import { type CoreAssistantMessage, StreamData, streamText } from "ai"
+import { StreamData, streamText } from "ai"
 import { NextRequest } from "next/server"
 
 const SYSTEM_PROMPT = `
@@ -65,16 +64,17 @@ export async function POST(req: NextRequest) {
         const title = await generateTitle(multiModalMessages)
         data.appendMessageAnnotation({ title })
       }
+      data.appendMessageAnnotation({ finished: true })
       data.close()
 
       // Remove message annotations first
       // Also make sure the client-side action of adding the geminiFilesApiUri to the last user message is reflected here
-
-      const latestAssistantMessage: CoreAssistantMessage = {
-        role: "assistant",
-        content: [{ type: "text", text }],
-      }
-      await storeMessages([...multiModalMessages, latestAssistantMessage])
+      // There is no builtin utility to convert Core SDK messages to UI SDK messages, so we will instead store UI SDK messages for now
+      // const latestAssistantMessage: CoreAssistantMessage = {
+      //   role: "assistant",
+      //   content: [{ type: "text", text }],
+      // }
+      // await storeMessages([...multiModalMessages, latestAssistantMessage])
     },
   })
 

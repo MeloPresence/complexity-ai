@@ -8,19 +8,23 @@ import {
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
-import { useFirebaseUser, useIsAuthenticated } from "@/lib/client/firebase/user"
+import {
+  IsAuthenticatedContext,
+  IsLoadingContext,
+  useFirebaseUser,
+} from "@/lib/client/firebase/user"
 import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
 import { type Message as UiMessage, useChat } from "ai/react"
-import type { User } from "firebase/auth"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useContext, useEffect, useMemo, useRef, useState } from "react"
 
 export function Chat({
   conversationId: originalConversationId = null,
 }: {
   conversationId?: string | null
 }) {
+  const isLoadingAuthentication = useContext<boolean>(IsLoadingContext)
   const router = useRouter()
   const rootMessageTreeNode = new MessageTreeNode()
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
@@ -39,15 +43,19 @@ export function Chat({
 
   const prevMessagesCount = useRef(0)
 
-  const user: User | null | undefined = useFirebaseUser()
-  const isAuthenticated = useIsAuthenticated()
+  const user = useFirebaseUser()
+  const isAuthenticated = useContext<boolean>(IsAuthenticatedContext)
+
+  useEffect(() => {
+    console.log({ isLoadingAuthentication, user })
+  }, [isLoadingAuthentication, user])
 
   const chat = useChat({
     keepLastMessageOnError: true,
     // ISSUE: useEffect is not yet triggered
     // I can't really just hack in sending the message tree in this request because what about message editing and message branch swapping?
     // Maybe I should just POST the tree to /api/conversations after the useEffect?
-    // If the user newly loads a /chat/<id>c, GET the tree at /api/conversations first
+    // If the user newly loads a /chat/<id>, GET the tree at /api/conversations first
     // https://sdk.vercel.ai/examples/next/chat/use-chat-custom-body
     // ts-expect-error Somehow the return type isn't a JSONValue???
     // experimental_prepareRequestBody: ({ messages }) => {
@@ -75,6 +83,7 @@ export function Chat({
   function consumeAnnotations(latestAssistantMessage: UiMessage) {
     if (latestAssistantMessage.annotations) {
       const annotations = latestAssistantMessage.annotations
+      const annotationsToRemove = []
       for (const annotation of annotations) {
         // TODO: Maybe use zod? Or is this type of "optional but strict programming" better?
         if (
@@ -117,13 +126,18 @@ export function Chat({
               )
             }
           })
+          annotationsToRemove.push(annotation)
         } else if (annotation.title && typeof annotation.title === "string") {
           setConversationTitle(annotation.title)
+          annotationsToRemove.push(annotation)
         }
       }
       console.log(latestAssistantMessage, latestAssistantMessage.annotations)
       // Silently remove annotations without triggering a rerender?
-      latestAssistantMessage.annotations = undefined
+      annotationsToRemove.forEach((annotation) => {
+        const index = latestAssistantMessage.annotations!.indexOf(annotation)!
+        latestAssistantMessage.annotations!.splice(index, 1)
+      })
     }
   }
 
@@ -191,16 +205,16 @@ export function Chat({
     originalConversationId,
   )
 
-  useEffect(() => {
-    if (isAuthenticated) {
+  function createOrUpdateConversation() {
+    if (user && latestMessageTreeNode.getMessage()) {
       const rootNode = latestMessageTreeNode.getRootNode()
       const conversation = new Conversation(
         conversationTitle || "Untitled",
-        user!.uid,
+        user.uid,
         false,
         rootNode,
       )
-      console.log("useEffect latestMessageTreeNode", rootNode)
+      console.log("createOrUpdateConversation", latestMessageTreeNode, rootNode)
       if (!conversationId) {
         createConversation(conversation.toModel()).then((id) => {
           setConversationId(id)
@@ -216,9 +230,25 @@ export function Chat({
           )
         })
       } else {
+        console.debug(
+          "before updateConversation in chat.tsx",
+          rootNode,
+          conversation.toModel(),
+        )
         updateConversation(conversationId, conversation.toModel())
       }
     }
+  }
+
+  useEffect(() => {
+    const latestMessage = latestMessageTreeNode.getMessage()
+    if (
+      latestMessage?.annotations?.find(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (annotation) => (annotation as any)?.finished === true,
+      )
+    )
+      createOrUpdateConversation()
   }, [latestMessageTreeNode])
 
   useEffect(() => {
@@ -275,7 +305,7 @@ export function Chat({
           <div className="justify-center h-[360px] w-full md:w-[100%] pt-20">
             <div className="font-sans text-[32px] font-semibold text-center gap-4 py-40 flex flex-col text-stone-700 dark:text-white">
               <p>How can I assist you today?</p>
-              {!user && (
+              {!isLoadingAuthentication && !isAuthenticated && (
                 <div className="font-sans font-extralight text-[14px] dark:text-stone-400">
                   <p>Sign up or login to access more features</p>
                 </div>

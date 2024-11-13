@@ -27,6 +27,7 @@ const data = {
 
 export function AppSidebar() {
   const user = useFirebaseUser()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [conversations, setConversations] = useState<any[]>([])
   useEffect(() => {
     if (user)

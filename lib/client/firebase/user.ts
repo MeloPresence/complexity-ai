@@ -1,22 +1,28 @@
 "use client" // Firebase does client-side authentication!
 
+import { auth } from "@/lib/client/firebase/app"
 import { onAuthStateChanged } from "@/lib/client/firebase/auth"
 import { type User } from "firebase/auth"
-import { useEffect, useState } from "react"
+import { createContext, useEffect, useState } from "react"
+
+export const IsLoadingContext = createContext<boolean>(true)
+
+export const IsAuthenticatedContext = createContext<boolean>(false)
 
 /**
  * React hook to use a stateful Firebase user value.
  *
- * If `undefined` is returned, useEffects depending on this value must abort to avoid "too many re-renders"
  * If `null` is returned, the user is not logged in
  * If a `User` is returned and not `User.isAnonymous`, the user is authenticated
  */
-export function useFirebaseUser() {
-  const [user, setUser] = useState<User | null | undefined>(undefined)
+export function useFirebaseUser(): User | null | undefined {
+  const [user, setUser] = useState<User | null | undefined>(
+    auth.currentUser || undefined,
+  )
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((authUser: User | null) => {
-      console.debug("onAuthStateChanged", { authUser })
+      console.debug("onAuthStateChanged", authUser)
       setUser(authUser)
     })
 
@@ -25,16 +31,4 @@ export function useFirebaseUser() {
   }, [])
 
   return user
-}
-
-export function useIsAuthenticated() {
-  const user: User | null | undefined = useFirebaseUser()
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (user === undefined) return
-    setIsAuthenticated(Boolean(user && !user.isAnonymous && user.emailVerified))
-  }, [user])
-
-  return isAuthenticated
 }
