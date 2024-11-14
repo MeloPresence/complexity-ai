@@ -16,15 +16,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { signOut } from "@/lib/client/firebase/auth"
-import { useFirebaseUser } from "@/lib/client/firebase/user"
+import { FirebaseUserContext } from "@/lib/client/firebase/user"
 
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useContext } from "react"
 
 export function NavUser() {
   const router = useRouter()
-  const user = useFirebaseUser()
+  const user = useContext(FirebaseUserContext)
   const { isMobile } = useSidebar()
 
   const handleSignOut = async () => {

@@ -9,24 +9,22 @@ export const IsLoadingContext = createContext<boolean>(true)
 
 export const IsAuthenticatedContext = createContext<boolean>(false)
 
+export const FirebaseUserContext = createContext<User | null>(null)
+
 /**
  * React hook to use a stateful Firebase user value.
  *
  * If `null` is returned, the user is not logged in
  * If a `User` is returned and not `User.isAnonymous`, the user is authenticated
  */
-export function useFirebaseUser(): User | null | undefined {
-  const [user, setUser] = useState<User | null | undefined>(
-    auth.currentUser || undefined,
-  )
+export function useFirebaseUser(): User | null {
+  const [user, setUser] = useState<User | null>(auth.currentUser)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged((authUser: User | null) => {
-      console.debug("onAuthStateChanged", authUser)
+    // Return the unsubscribe function for cleanup
+    return onAuthStateChanged((authUser: User | null) => {
       setUser(authUser)
     })
-
-    return () => unsubscribe() // Cleanup
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -9,9 +9,9 @@ import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
 import {
+  FirebaseUserContext,
   IsAuthenticatedContext,
   IsLoadingContext,
-  useFirebaseUser,
 } from "@/lib/client/firebase/user"
 import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
@@ -43,7 +43,7 @@ export function Chat({
 
   const prevMessagesCount = useRef(0)
 
-  const user = useFirebaseUser()
+  const user = useContext(FirebaseUserContext)
   const isAuthenticated = useContext<boolean>(IsAuthenticatedContext)
 
   useEffect(() => {
@@ -247,8 +247,10 @@ export function Chat({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (annotation) => (annotation as any)?.finished === true,
       )
-    )
+    ) {
+      // Remove finished=true from latestMessage.annotations
       createOrUpdateConversation()
+    }
   }, [latestMessageTreeNode])
 
   useEffect(() => {
@@ -305,7 +307,7 @@ export function Chat({
           <div className="justify-center h-[360px] w-full md:w-[100%] pt-20">
             <div className="font-sans text-[32px] font-semibold text-center gap-4 py-40 flex flex-col text-stone-700 dark:text-white">
               <p>How can I assist you today?</p>
-              {!isLoadingAuthentication && !isAuthenticated && (
+              {!isAuthenticated && (
                 <div className="font-sans font-extralight text-[14px] dark:text-stone-400">
                   <p>Sign up or login to access more features</p>
                 </div>

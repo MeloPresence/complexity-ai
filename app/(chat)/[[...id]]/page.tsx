@@ -10,5 +10,7 @@ export default async function ChatPage({
   if (idArray && idArray.length > 1) notFound()
   const conversationId = idArray?.[0]
 
+  // TODO: Prefetch the conversation
+
   return <Chat {...{ conversationId }} />
 }

@@ -12,10 +12,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { useFirebaseUser } from "@/lib/client/firebase/user"
+import { FirebaseUserContext } from "@/lib/client/firebase/user"
 import { Command } from "lucide-react"
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 
 // This is sample data.
 const data = {
@@ -26,7 +26,7 @@ const data = {
 }
 
 export function AppSidebar() {
-  const user = useFirebaseUser()
+  const user = useContext(FirebaseUserContext)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [conversations, setConversations] = useState<any[]>([])
   useEffect(() => {
