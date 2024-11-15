@@ -17,7 +17,13 @@ export async function generateTitle(
   const { text } = await generateText({
     model: google("gemini-1.5-flash-latest"),
     system: SYSTEM_PROMPT,
-    messages,
+    messages: [
+      ...messages,
+      {
+        role: "system",
+        content: SYSTEM_PROMPT,
+      },
+    ],
   })
   return text.trim()
 }
