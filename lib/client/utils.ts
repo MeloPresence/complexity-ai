@@ -1,3 +1,8 @@
+import type { ConversationInfo } from "@/lib/conversation"
+import { createContext } from "react"
+
+export const ConversationInfoListContext = createContext<ConversationInfo[]>([])
+
 export function addCookie(key: string, value: string) {
   const regex = new RegExp(`${key}\\s*=\\s*\\S+?\\s*(?=;|$)`)
   const newCookieText = `${key}=${value}`

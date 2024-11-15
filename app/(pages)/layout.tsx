@@ -1,5 +1,5 @@
 import ClientPagesLayout from "@/components/layout/pages"
-import { auth } from "@/lib/server/firebase/app"
+import { verifyIdToken } from "@/lib/server/firebase/auth"
 import { FIREBASE_AUTH_TOKEN_COOKIE } from "@/lib/utils"
 import { cookies } from "next/headers"
 
@@ -15,17 +15,15 @@ export default async function PagesLayout({
   let isAuthenticated = false
 
   if (firebaseAuthToken) {
-    await auth
-      .verifyIdToken(firebaseAuthToken)
-      .then((decoded) => {
-        isAuthenticated = true
-        console.log(`Verified auth token: ${decoded.uid}`)
-      })
-      .catch((err) => {
-        console.log(`Failed to verify auth token: ${err}`)
-      })
+    const result = await verifyIdToken(firebaseAuthToken)
+    if (result.decoded) {
+      isAuthenticated = true
+      console.debug(`Verified auth token: ${result.decoded.uid}`)
+    } else {
+      console.debug(`Failed to verify auth token: ${result.error}`)
+    }
   } else {
-    console.log("No auth token found in cookies")
+    console.debug("No auth token found in cookies")
   }
 
   return (

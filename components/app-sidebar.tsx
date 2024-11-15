@@ -16,7 +16,12 @@ import {
   FirebaseUserContext,
   IsAuthenticatedContext,
 } from "@/lib/client/firebase/user"
-import type { ConversationInfo } from "@/lib/conversation"
+import { ConversationInfoListContext } from "@/lib/client/utils"
+import {
+  categorizeConversationsByTime,
+  type CategorizedConversationInfo,
+  type ConversationInfo,
+} from "@/lib/conversation"
 import { Command } from "lucide-react"
 import * as React from "react"
 import { useContext, useEffect, useState } from "react"
@@ -30,21 +35,10 @@ const data = {
 }
 
 export function AppSidebar() {
-  const user = useContext(FirebaseUserContext)
-  const [conversations, setConversations] = useState<
-    (ConversationInfo & { url: string })[]
-  >([])
-  useEffect(() => {
-    if (user)
-      // TODO: Get conversation list again when updates happen in chat
-      getConversationList(user.uid).then((result) =>
-        setConversations(
-          result.map((item) => {
-            return { ...item, url: `/${item.id}` }
-          }),
-        ),
-      )
-  }, [user])
+  const conversations = useContext(ConversationInfoListContext)
+  const categorizedConversations: CategorizedConversationInfo =
+    categorizeConversationsByTime(conversations)
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -54,11 +48,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavConversations
-          today={conversations}
-          yesterday={[]}
-          previous30days={[]}
-        />
+        <NavConversations items={categorizedConversations} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
@@ -69,17 +59,39 @@ export function AppSidebar() {
 }
 
 export function SidebarIfAuthenticated({
+  conversations: conversationsFromServer = [],
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  conversations?: ConversationInfo[]
+  children: React.ReactNode
+}>) {
   const isAuthenticated = useContext(IsAuthenticatedContext)
+  let inner
   if (isAuthenticated) {
-    return (
+    inner = (
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
     )
   } else {
-    return <div>{children}</div>
+    inner = <div>{children}</div>
   }
+
+  const [conversations, setConversations] = useState<ConversationInfo[]>(
+    conversationsFromServer,
+  )
+
+  const user = useContext(FirebaseUserContext)
+  useEffect(() => {
+    if (user)
+      // TODO: Get conversation list again when updates happen in chat (probably can change the context value type)
+      getConversationList(user.uid).then((result) => setConversations(result))
+  }, [user])
+
+  return (
+    <ConversationInfoListContext.Provider value={conversations}>
+      {inner}
+    </ConversationInfoListContext.Provider>
+  )
 }

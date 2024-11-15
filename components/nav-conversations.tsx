@@ -15,28 +15,22 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import type {
+  CategorizedConversationInfo,
+  ConversationInfoWithUrl,
+} from "@/lib/conversation"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
 
-export type Item = {
-  id: string
-  name: string
-  url: string
-}
-
 export function NavConversations({
-  today,
-  yesterday,
-  previous30days,
+  items,
 }: {
-  today: Item[]
-  yesterday: Item[]
-  previous30days: Item[]
+  items: CategorizedConversationInfo
 }) {
   const { isMobile } = useSidebar()
 
   // Helper function to render a list of projects
-  const renderConversations = (conversations: Item[]) => (
+  const renderConversations = (conversations: ConversationInfoWithUrl[]) => (
     <SidebarMenu>
       {conversations.map((item) => (
         <SidebarMenuItem key={item.id}>
@@ -83,22 +77,28 @@ export function NavConversations({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-      {today && today.length > 0 && (
+      {items.today.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Today</SidebarGroupLabel>
-          {renderConversations(today)}
+          {renderConversations(items.today)}
         </SidebarGroup>
       )}
-      {yesterday && yesterday.length > 0 && (
+      {items.yesterday.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Yesterday</SidebarGroupLabel>
-          {renderConversations(yesterday)}
+          {renderConversations(items.yesterday)}
         </SidebarGroup>
       )}
-      {previous30days && previous30days.length > 0 && (
+      {items.previous30days.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Previous 30 Days</SidebarGroupLabel>
-          {renderConversations(previous30days)}
+          {renderConversations(items.previous30days)}
+        </SidebarGroup>
+      )}
+      {items.older.length > 0 && (
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel>Older</SidebarGroupLabel>
+          {renderConversations(items.older)}
         </SidebarGroup>
       )}
     </>

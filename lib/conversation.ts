@@ -80,3 +80,56 @@ export interface ConversationServiceInterface {
     conversationId: string,
   ): Promise<DocumentSnapshot<Conversation, ConversationDataModel>> // TODO: Generalize Firestore return type
 }
+
+export type ConversationInfoWithUrl = ConversationInfo & { url: string }
+
+export type CategorizedConversationInfo = {
+  today: ConversationInfoWithUrl[]
+  yesterday: ConversationInfoWithUrl[]
+  previous30days: ConversationInfoWithUrl[]
+  older: ConversationInfoWithUrl[]
+}
+
+export function categorizeConversationsByTime(
+  conversations: ConversationInfo[],
+): CategorizedConversationInfo {
+  const today = new Date()
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  )
+  const startOfYesterday = new Date(startOfToday)
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1)
+  const startOf30DaysAgo = new Date(startOfToday)
+  startOf30DaysAgo.setDate(startOf30DaysAgo.getDate() - 30)
+
+  const categorized: CategorizedConversationInfo = {
+    today: [],
+    yesterday: [],
+    previous30days: [],
+    older: [],
+  }
+
+  conversations
+    .map((conversation): [ConversationInfo, Date] => [
+      conversation,
+      new Date(conversation.updateTime),
+    ])
+    .toSorted(([, a], [, b]) => b.valueOf() - a.valueOf())
+    .forEach(([conversation, updateTime]) => {
+      const withUrl = { ...conversation, url: `/${conversation.id}` }
+
+      if (updateTime >= startOfToday) {
+        categorized.today.push(withUrl)
+      } else if (updateTime >= startOfYesterday) {
+        categorized.yesterday.push(withUrl)
+      } else if (updateTime >= startOf30DaysAgo) {
+        categorized.previous30days.push(withUrl)
+      } else {
+        categorized.older.push(withUrl)
+      }
+    })
+
+  return categorized
+}
