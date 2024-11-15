@@ -22,7 +22,7 @@ import {
 import { UserInfoContext } from "@/lib/user"
 import { Command } from "lucide-react"
 import * as React from "react"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 
 // This is sample data.
 const data = {
@@ -84,12 +84,15 @@ export function SidebarIfAuthenticated({
   )
 
   const userInfo = useContext(UserInfoContext)
+  const isFirstFetchDone = useRef(false)
   useEffect(() => {
-    if (userInfo)
+    if (userInfo && !isFirstFetchDone.current) {
       // TODO: Get conversation list again when updates happen in chat (probably can change the context value type)
       getConversationList(userInfo.uid).then((result) =>
         setConversations(result),
       )
+      isFirstFetchDone.current = true
+    }
   }, [userInfo])
 
   return (

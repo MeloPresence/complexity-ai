@@ -4,7 +4,7 @@ import {
   IsAuthenticatedContext,
   useFirebaseUserState,
 } from "@/lib/client/firebase/user"
-import { addCookie } from "@/lib/client/utils"
+import { addCookie, removeCookie } from "@/lib/client/utils"
 import { type UserInfo, UserInfoContext } from "@/lib/user"
 import { FIREBASE_AUTH_TOKEN_COOKIE } from "@/lib/utils"
 import type { User } from "firebase/auth"
@@ -36,12 +36,18 @@ export default function AuthenticationProvider({
 
   useEffect(() => {
     if (user && user.emailVerified) {
+      console.log(`User ${user.email} verified`)
       setIsAuthenticated(true)
       setUserInfo(user)
       addIdTokenCookie(user)
     }
     // Assume can't become unauthenticated midway for now
   }, [user])
+
+  useEffect(() => {
+    // Expired cookie!
+    if (!isAuthenticatedFromServer) removeCookie(FIREBASE_AUTH_TOKEN_COOKIE)
+  }, [isAuthenticatedFromServer])
 
   return (
     <IsAuthenticatedContext.Provider value={isAuthenticated}>

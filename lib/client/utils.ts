@@ -14,3 +14,9 @@ export function addCookie(key: string, value: string) {
     document.cookie = newCookieText
   }
 }
+
+export function removeCookie(key: string) {
+  const regex = new RegExp(`${key}\\s*=\\s*\\S+?\\s*(?:;|$)`)
+  if (document.cookie.match(regex))
+    document.cookie = document.cookie.replace(regex, "")
+}
