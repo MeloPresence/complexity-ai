@@ -24,7 +24,7 @@ export type Item = {
   url: string
 }
 
-export function NavProjects({
+export function NavConversations({
   today,
   yesterday,
   previous30days,
@@ -36,9 +36,9 @@ export function NavProjects({
   const { isMobile } = useSidebar()
 
   // Helper function to render a list of projects
-  const renderProjects = (projects: Item[]) => (
+  const renderConversations = (conversations: Item[]) => (
     <SidebarMenu>
-      {projects.map((item) => (
+      {conversations.map((item) => (
         <SidebarMenuItem key={item.id}>
           <SidebarMenuButton asChild>
             <Link href={item.url}>
@@ -86,19 +86,19 @@ export function NavProjects({
       {today && today.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Today</SidebarGroupLabel>
-          {renderProjects(today)}
+          {renderConversations(today)}
         </SidebarGroup>
       )}
       {yesterday && yesterday.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Yesterday</SidebarGroupLabel>
-          {renderProjects(yesterday)}
+          {renderConversations(yesterday)}
         </SidebarGroup>
       )}
       {previous30days && previous30days.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>Previous 30 Days</SidebarGroupLabel>
-          {renderProjects(previous30days)}
+          {renderConversations(previous30days)}
         </SidebarGroup>
       )}
     </>

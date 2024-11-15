@@ -1,18 +1,22 @@
 "use client"
 
 import { getConversationList } from "@/actions/conversations"
-//import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavConversations } from "@/components/nav-conversations"
 import { NavUser } from "@/components/nav-user"
-//import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarInset,
+  SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { FirebaseUserContext } from "@/lib/client/firebase/user"
+import {
+  FirebaseUserContext,
+  IsAuthenticatedContext,
+} from "@/lib/client/firebase/user"
+import type { ConversationInfo } from "@/lib/conversation"
 import { Command } from "lucide-react"
 import * as React from "react"
 import { useContext, useEffect, useState } from "react"
@@ -27,8 +31,9 @@ const data = {
 
 export function AppSidebar() {
   const user = useContext(FirebaseUserContext)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [conversations, setConversations] = useState<any[]>([])
+  const [conversations, setConversations] = useState<
+    (ConversationInfo & { url: string })[]
+  >([])
   useEffect(() => {
     if (user)
       // TODO: Get conversation list again when updates happen in chat
@@ -45,15 +50,15 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center space-x-2 ml-3 mt-3">
           <data.apps.logo />
-          {/* Renders the app logo icon */}
-          <span className="font-sans font-semibold">{data.apps.name}</span>{" "}
-          {/* Renders the app name */}
+          <span className="font-sans font-semibold">{data.apps.name}</span>
         </div>
-        {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavMain items={data.navMain} /> */}
-        <NavProjects today={conversations} yesterday={[]} previous30days={[]} />
+        <NavConversations
+          today={conversations}
+          yesterday={[]}
+          previous30days={[]}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
@@ -61,4 +66,20 @@ export function AppSidebar() {
       <SidebarRail />
     </Sidebar>
   )
+}
+
+export function SidebarIfAuthenticated({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const isAuthenticated = useContext(IsAuthenticatedContext)
+  if (isAuthenticated) {
+    return (
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    )
+  } else {
+    return <div>{children}</div>
+  }
 }

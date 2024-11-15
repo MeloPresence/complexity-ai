@@ -1,7 +1,7 @@
+import { ThemeProvider } from "@/components/theme-provider"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,7 +16,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Complexity AI",
-  description: "AI document extractor and search engine",
+  description: "AI document extractor",
 }
 
 export default function RootLayout({
@@ -25,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    // TODO: Investigate suppressHydrationWarning necessity
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -40,5 +40,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

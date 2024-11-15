@@ -1,6 +1,10 @@
 "use server"
 
-import { Conversation, type ConversationDataModel } from "@/lib/conversation"
+import {
+  Conversation,
+  type ConversationDataModel,
+  type ConversationInfo,
+} from "@/lib/conversation"
 import { ConversationService } from "@/lib/server/firebase/firestore"
 
 const conversationService = new ConversationService()
@@ -36,6 +40,8 @@ export async function getConversation(
   return conversation.toModel()
 }
 
-export async function getConversationList(userId: string): Promise<any[]> {
+export async function getConversationList(
+  userId: string,
+): Promise<ConversationInfo[]> {
   return await conversationService.getConversationList(userId)
 }

@@ -1,14 +1,13 @@
-import { ChatLayout } from "@/components/chat-layout"
+import ClientPagesLayout from "@/components/layout/pages"
 import { auth } from "@/lib/server/firebase/app"
 import { FIREBASE_AUTH_TOKEN_COOKIE } from "@/lib/utils"
 import { cookies } from "next/headers"
-import * as React from "react"
 
-export default async function Layout({
+export default async function PagesLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   const cookieJar = cookies()
   const firebaseAuthToken =
     cookieJar.get(FIREBASE_AUTH_TOKEN_COOKIE)?.value || null
@@ -29,5 +28,7 @@ export default async function Layout({
     console.log("No auth token found in cookies")
   }
 
-  return <ChatLayout {...{ isAuthenticated }}>{children}</ChatLayout>
+  return (
+    <ClientPagesLayout {...{ isAuthenticated }}>{children}</ClientPagesLayout>
+  )
 }

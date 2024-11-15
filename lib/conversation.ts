@@ -17,6 +17,14 @@ export interface ConversationDataModel {
   messageTreeJson: string
 }
 
+export interface ConversationInfo {
+  id: string
+  name: string
+  createTime: string
+  readTime: string
+  updateTime: string
+}
+
 export class Conversation {
   public constructor(
     private _name: string,

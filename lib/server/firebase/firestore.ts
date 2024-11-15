@@ -1,6 +1,7 @@
 import {
   Conversation,
   type ConversationDataModel,
+  type ConversationInfo,
   type ConversationServiceInterface,
 } from "@/lib/conversation"
 import { db } from "@/lib/server/firebase/app"
@@ -70,7 +71,9 @@ export class ConversationService implements ConversationServiceInterface {
     return data
   }
 
-  public async getConversationList(userId: string) {
+  public async getConversationList(
+    userId: string,
+  ): Promise<ConversationInfo[]> {
     const result = await this.collectionRef
       .where("userId", "==", userId)
       .select("name", "isPublic")

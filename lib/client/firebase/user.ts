@@ -5,8 +5,6 @@ import { onAuthStateChanged } from "@/lib/client/firebase/auth"
 import { type User } from "firebase/auth"
 import { createContext, useEffect, useState } from "react"
 
-export const IsLoadingContext = createContext<boolean>(true)
-
 export const IsAuthenticatedContext = createContext<boolean>(false)
 
 export const FirebaseUserContext = createContext<User | null>(null)
@@ -17,7 +15,7 @@ export const FirebaseUserContext = createContext<User | null>(null)
  * If `null` is returned, the user is not logged in
  * If a `User` is returned and not `User.isAnonymous`, the user is authenticated
  */
-export function useFirebaseUser(): User | null {
+export function useFirebaseUserState(): User | null {
   const [user, setUser] = useState<User | null>(auth.currentUser)
 
   useEffect(() => {

@@ -11,7 +11,6 @@ import { ChatBubble, LoadingChatBubble } from "@/components/message"
 import {
   FirebaseUserContext,
   IsAuthenticatedContext,
-  IsLoadingContext,
 } from "@/lib/client/firebase/user"
 import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
@@ -24,7 +23,6 @@ export function Chat({
 }: {
   conversationId?: string | null
 }) {
-  const isLoadingAuthentication = useContext<boolean>(IsLoadingContext)
   const router = useRouter()
   const rootMessageTreeNode = new MessageTreeNode()
   const [isSwappingMessageTreeBranches, setIsSwappingMessageTreeBranches] =
@@ -45,10 +43,6 @@ export function Chat({
 
   const user = useContext(FirebaseUserContext)
   const isAuthenticated = useContext<boolean>(IsAuthenticatedContext)
-
-  useEffect(() => {
-    console.log({ isLoadingAuthentication, user })
-  }, [isLoadingAuthentication, user])
 
   const chat = useChat({
     keepLastMessageOnError: true,
@@ -248,7 +242,7 @@ export function Chat({
         (annotation) => (annotation as any)?.finished === true,
       )
     ) {
-      // Remove finished=true from latestMessage.annotations
+      // TODO: Remove finished=true from latestMessage.annotations
       createOrUpdateConversation()
     }
   }, [latestMessageTreeNode])
