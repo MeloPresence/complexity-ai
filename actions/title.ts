@@ -14,6 +14,7 @@ const SYSTEM_PROMPT = `
 export async function generateTitle(
   messages: ModdedCoreMessage[],
 ): Promise<string> {
+  console.debug("@/actions/title.ts/generateTitle")
   const { text } = await generateText({
     model: google("gemini-1.5-flash-latest"),
     system: SYSTEM_PROMPT,

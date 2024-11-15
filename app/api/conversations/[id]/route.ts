@@ -2,9 +2,9 @@ import { updateConversation } from "@/actions/conversations"
 import type { ConversationDataModel } from "@/lib/conversation"
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET(req: NextRequest) {
-  // Update existing conversation history
-}
+// export async function GET(req: NextRequest) {
+//   // Update existing conversation history
+// }
 
 export async function POST(
   req: NextRequest,
