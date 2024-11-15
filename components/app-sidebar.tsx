@@ -12,16 +12,14 @@ import {
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {
-  FirebaseUserContext,
-  IsAuthenticatedContext,
-} from "@/lib/client/firebase/user"
+import { IsAuthenticatedContext } from "@/lib/client/firebase/user"
 import { ConversationInfoListContext } from "@/lib/client/utils"
 import {
   categorizeConversationsByTime,
   type CategorizedConversationInfo,
   type ConversationInfo,
 } from "@/lib/conversation"
+import { UserInfoContext } from "@/lib/user"
 import { Command } from "lucide-react"
 import * as React from "react"
 import { useContext, useEffect, useState } from "react"
@@ -35,6 +33,7 @@ const data = {
 }
 
 export function AppSidebar() {
+  const userInfo = useContext(UserInfoContext)
   const conversations = useContext(ConversationInfoListContext)
   const categorizedConversations: CategorizedConversationInfo =
     categorizeConversationsByTime(conversations)
@@ -50,9 +49,11 @@ export function AppSidebar() {
       <SidebarContent>
         <NavConversations items={categorizedConversations} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
+      {userInfo && (
+        <SidebarFooter>
+          <NavUser {...{ userInfo }} />
+        </SidebarFooter>
+      )}
       <SidebarRail />
     </Sidebar>
   )
@@ -82,12 +83,14 @@ export function SidebarIfAuthenticated({
     conversationsFromServer,
   )
 
-  const user = useContext(FirebaseUserContext)
+  const userInfo = useContext(UserInfoContext)
   useEffect(() => {
-    if (user)
+    if (userInfo)
       // TODO: Get conversation list again when updates happen in chat (probably can change the context value type)
-      getConversationList(user.uid).then((result) => setConversations(result))
-  }, [user])
+      getConversationList(userInfo.uid).then((result) =>
+        setConversations(result),
+      )
+  }, [userInfo])
 
   return (
     <ConversationInfoListContext.Provider value={conversations}>

@@ -8,12 +8,10 @@ import {
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
-import {
-  FirebaseUserContext,
-  IsAuthenticatedContext,
-} from "@/lib/client/firebase/user"
+import { IsAuthenticatedContext } from "@/lib/client/firebase/user"
 import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
+import { UserInfoContext } from "@/lib/user"
 import { type Message as UiMessage, useChat } from "ai/react"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useMemo, useRef, useState } from "react"
@@ -41,7 +39,7 @@ export function Chat({
 
   const prevMessagesCount = useRef(0)
 
-  const user = useContext(FirebaseUserContext)
+  const userInfo = useContext(UserInfoContext)
   const isAuthenticated = useContext<boolean>(IsAuthenticatedContext)
 
   const chat = useChat({
@@ -200,11 +198,11 @@ export function Chat({
   )
 
   function createOrUpdateConversation() {
-    if (user && latestMessageTreeNode.getMessage()) {
+    if (userInfo && latestMessageTreeNode.getMessage()) {
       const rootNode = latestMessageTreeNode.getRootNode()
       const conversation = new Conversation(
         conversationTitle || "Untitled",
-        user.uid,
+        userInfo.uid,
         false,
         rootNode,
       )
@@ -248,8 +246,8 @@ export function Chat({
   }, [latestMessageTreeNode])
 
   useEffect(() => {
-    if (user && conversationId) {
-      getConversation(user.uid, conversationId)
+    if (userInfo && conversationId) {
+      getConversation(userInfo.uid, conversationId)
         .then((data) => {
           const conversation = Conversation.fromModel(data)
           setIsSwappingMessageTreeBranches(true)
@@ -264,7 +262,7 @@ export function Chat({
         })
         .catch(() => router.push("/"))
     }
-  }, [user, conversationId])
+  }, [userInfo, conversationId])
   return (
     <DragAndDropFilePicker onAddFiles={setFiles}>
       <div className="flex flex-col w-full justify-between gap-4 dark:bg-neutral-800">

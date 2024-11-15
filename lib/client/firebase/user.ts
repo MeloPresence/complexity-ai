@@ -1,4 +1,4 @@
-"use client" // Firebase does client-side authentication!
+"use client"
 
 import { auth } from "@/lib/client/firebase/app"
 import { onAuthStateChanged } from "@/lib/client/firebase/auth"
@@ -6,8 +6,6 @@ import { type User } from "firebase/auth"
 import { createContext, useEffect, useState } from "react"
 
 export const IsAuthenticatedContext = createContext<boolean>(false)
-
-export const FirebaseUserContext = createContext<User | null>(null)
 
 /**
  * React hook to use a stateful Firebase user value.

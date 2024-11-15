@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { IsAuthenticatedContext } from "@/lib/client/firebase/user"
+import { UserInfoContext } from "@/lib/user"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import Link from "next/link"
@@ -27,6 +28,7 @@ import { useContext } from "react"
 export function Header() {
   const { setTheme } = useTheme()
   const isAuthenticated = useContext(IsAuthenticatedContext)
+  const userInfo = useContext(UserInfoContext)
 
   return (
     <header className="dark:bg-neutral-800 flex h-16 shrink-0 items-center transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -52,11 +54,13 @@ export function Header() {
         </Breadcrumb>
       </div>
       <div className="ml-auto flex">
-        <Link href="/register">
-          <button className="dark:text-white dark:hover:bg-neutral-600 font-semibold font-sans ml-auto flex bg-transparent text-black text-base px-4 py-2 hover:bg-accent rounded-md">
-            Sign Up
-          </button>
-        </Link>
+        {!userInfo && (
+          <Link href="/login">
+            <button className="dark:text-white dark:hover:bg-neutral-600 font-semibold font-sans ml-auto flex bg-transparent text-black text-base px-4 py-2 hover:bg-accent rounded-md">
+              Log In
+            </button>
+          </Link>
+        )}
       </div>
 
       <div className="flex justify-end items-center p-4 bg-gray-100 bg-transparent dark:bg-neutral-800">
