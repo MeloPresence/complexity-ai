@@ -236,13 +236,13 @@ export function Chat({
 
   useEffect(() => {
     const latestMessage = latestMessageTreeNode.getMessage()
-    if (
-      latestMessage?.annotations?.find(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (annotation) => (annotation as any)?.finished === true,
-      )
-    ) {
-      // TODO: Remove finished=true from latestMessage.annotations
+    const index = latestMessage?.annotations?.findIndex(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (annotation) => (annotation as any)?.finished === true,
+    )
+    if (index !== undefined && index !== -1) {
+      // Remove finished=true from latestMessage.annotations silently
+      latestMessage!.annotations!.splice(index, 1)
       createOrUpdateConversation()
     }
   }, [latestMessageTreeNode])
