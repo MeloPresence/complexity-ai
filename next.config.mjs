@@ -4,6 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
+    serverComponentsExternalPackages: ["pino"],
     serverActions: {
       bodySizeLimit: "10mb",
     },

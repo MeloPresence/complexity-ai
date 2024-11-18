@@ -1,4 +1,5 @@
 import { generateTitle } from "@/actions/title"
+import { logger } from "@/lib/server/logger"
 import {
   type ModdedCoreMessage,
   type ModdedCoreUserMessage,
@@ -19,6 +20,9 @@ const SYSTEM_PROMPT = `
 `
 
 export async function POST(req: NextRequest) {
+  logger.info({
+    action: "chat",
+  })
   const {
     messages,
     conversationId,

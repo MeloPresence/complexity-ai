@@ -1,13 +1,13 @@
-import winston from "winston"
-import LokiTransport from "winston-loki"
+import pino from "pino"
+import type { LokiOptions } from "pino-loki"
 
-export const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.json(),
-  transports: [
-    new LokiTransport({
-      host: "http://localhost:3100",
-      labels: { app: "nextjs-api" },
-    }),
-  ],
+const transport = pino.transport<LokiOptions>({
+  target: "pino-loki",
+  options: {
+    batching: true,
+    interval: 5,
+    host: "http://localhost:3100",
+  },
 })
+
+export const logger = pino(transport)
