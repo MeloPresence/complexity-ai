@@ -2,6 +2,7 @@ services:
   complexity-ai:
     build:
       context: .
+      dockerfile: Containerfile
     ports:
       - "2999:3000"
   loki:
