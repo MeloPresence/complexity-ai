@@ -19,6 +19,7 @@ import type {
   CategorizedConversationInfo,
   ConversationInfoWithUrl,
 } from "@/lib/conversation"
+import { ChatBubbleIcon } from "@radix-ui/react-icons"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
 
@@ -72,7 +73,10 @@ export function NavConversations({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/">New chat</Link>
+              <Link href="/">
+              <ChatBubbleIcon/>
+              New chat
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

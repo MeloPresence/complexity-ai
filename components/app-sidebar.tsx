@@ -42,7 +42,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center space-x-2 ml-3 mt-3">
+        <div className="flex items-center space-x-2 ml-1 mt-3">
           <data.apps.logo />
           <span className="font-sans font-semibold">{data.apps.name}</span>
         </div>
