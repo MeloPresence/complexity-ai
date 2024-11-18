@@ -1,4 +1,9 @@
 services:
+  complexity-ai:
+    build:
+      context: .
+    ports:
+      - "2999:3000"
   loki:
     image: grafana/loki:latest
     ports:
