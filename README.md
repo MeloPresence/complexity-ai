@@ -26,6 +26,14 @@ You can start editing pages by modifying any `page.tsx`. The current landing pag
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+#### Using Docker/Podman
+
+Run `docker build . --tag complexity-ai:latest` to build the image.
+
+Run `docker run --name complexity-ai -p 3000:3000 complexity-ai:latest` to run the image in a container.
+
+Swap `docker` with `podman` when using Podman.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

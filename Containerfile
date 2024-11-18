@@ -14,6 +14,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the application code into the container
+# TODO: REMOVE SECRETS!!!
 COPY . .
 
 # Build the Next.js app
