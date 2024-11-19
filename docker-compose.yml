@@ -1,31 +1,12 @@
+include:
+  - ./docker-compose-loki.yml
+
 services:
   complexity-ai:
     build:
       context: .
       dockerfile: Containerfile
     ports:
-      - "2999:3000"
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - ./loki-config.yaml:/etc/loki/local-config.yaml
-
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - /var/log:/var/log
-      - ./promtail-config.yaml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_SECURITY_ADMIN_USER=admin
-    depends_on:
-      - loki
+      - "2999:2999"
+    networks:
+      - loki  # From ./docker-compose-loki.yml

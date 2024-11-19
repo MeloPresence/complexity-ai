@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm build
 
 # Expose the port that the Next.js app will run on
-EXPOSE 3000
+EXPOSE 2999
 
 # Start the Next.js app in production mode
-CMD ["pnpm", "start"]
+CMD pnpm start -p 2999

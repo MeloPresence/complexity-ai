@@ -2,3 +2,8 @@ node_modules
 .next
 tmp
 .npmrc
+
+loki-config.yaml
+promtail-config.yaml
+alloy-local-config.yaml
+.data
