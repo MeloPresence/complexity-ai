@@ -66,9 +66,9 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true  # Changed
     depends_on:
       - loki
-#    volumes:
-#      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-#      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    volumes:
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     entrypoint:
       - sh
       - -euc
@@ -81,10 +81,6 @@ services:
             type: loki
             access: proxy
             url: http://loki:3100
-            jsonData:
-              httpHeaderName1: "X-Scope-OrgID"
-            secureJsonData:
-              httpHeaderValue1: "tenant1"
         EOF
         /run.sh
     ports:

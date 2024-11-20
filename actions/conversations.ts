@@ -15,12 +15,17 @@ const conversationService = new ConversationService()
 export async function createConversation(
   data: ConversationDataModel,
 ): Promise<string> {
-  logger.info({
-    action: "createConversation",
-    user_id: data.userId,
-  })
+  const before = Date.now()
   const conversation = Conversation.fromModel(data)
   const result = await conversationService.createConversation(conversation)
+  logger.info({
+    type: "backend",
+    action: "write",
+    success: true,
+    responseTime: Date.now() - before,
+    initiatorUserId: data.userId,
+    endpoint: "actions/conversations/createConversation",
+  })
   return result.id
 }
 
@@ -28,47 +33,64 @@ export async function updateConversation(
   id: string,
   data: ConversationDataModel,
 ): Promise<void> {
-  logger.info({
-    action: "updateConversation",
-    user_id: data.userId,
-    conversation_id: id,
-  })
+  const before = Date.now()
   const conversation = Conversation.fromModel(data)
   await conversationService.updateConversation(id, conversation)
+  logger.info({
+    type: "backend",
+    action: "write",
+    success: true,
+    responseTime: Date.now() - before,
+    initiatorUserId: data.userId,
+    endpoint: "actions/conversations/updateConversation",
+  })
 }
 
 export async function getConversation(
   userId: string,
   conversationId: string,
 ): Promise<ConversationDataModel> {
-  logger.info({
-    action: "getConversation",
-    user_id: userId,
-    conversation_id: conversationId,
-  })
+  const before = Date.now()
   const result = await conversationService.getConversation(
     userId,
     conversationId,
   )
   const conversation = result.data()
   if (!conversation) {
-    logger.error({
-      action: "getConversation",
-      user_id: userId,
-      conversation_id: conversationId,
-      error: "NOT_FOUND",
+    logger.info({
+      type: "backend",
+      action: "read",
+      success: false,
+      responseTime: Date.now() - before,
+      initiatorUserId: userId,
+      endpoint: "actions/conversations/getConversation",
+      message: "NOT_FOUND",
     })
     throw new Error("Conversation not found")
   }
+  logger.info({
+    type: "backend",
+    action: "read",
+    success: true,
+    responseTime: Date.now() - before,
+    initiatorUserId: userId,
+    endpoint: "actions/conversations/getConversation",
+  })
   return conversation.toModel()
 }
 
 export async function getConversationList(
   userId: string,
 ): Promise<ConversationInfo[]> {
+  const before = Date.now()
+  const result = await conversationService.getConversationList(userId)
   logger.info({
-    action: "getConversationList",
-    user_id: userId,
+    type: "backend",
+    action: "read",
+    success: true,
+    responseTime: Date.now() - before,
+    initiatorUserId: userId,
+    endpoint: "actions/conversations/getConversationList",
   })
-  return await conversationService.getConversationList(userId)
+  return result
 }

@@ -2,8 +2,10 @@ node_modules
 .next
 tmp
 .npmrc
+.idea
 
 loki-config.yaml
 promtail-config.yaml
 alloy-local-config.yaml
 .data
+grafana

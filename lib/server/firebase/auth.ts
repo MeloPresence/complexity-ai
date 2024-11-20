@@ -6,6 +6,7 @@ import {
 } from "firebase-admin/auth"
 import { unstable_cache as cache } from "next/cache"
 import { cookies } from "next/headers"
+import { logger } from "../logger"
 
 type VerifyResult =
   | { decoded: DecodedIdToken; error?: undefined }
@@ -31,15 +32,43 @@ async function verifyIdTokenFnWithMutex(token: string): Promise<VerifyResult> {
     return verifyInProgress.get(token)!
   }
 
+  const before = Date.now()
+
   // Create a new request and store the promise in the in-progress map
   const request = verifyIdTokenFn(token)
     .then((result) => {
       // Cache the result once the promise is resolved
       verifyInProgress.delete(token)
+      let message
+      let initiatorUserId = null
+      if (result.decoded) {
+        message = "Verified Firebase auth ID token: valid"
+        initiatorUserId = result.decoded.uid
+      } else {
+        message = "Verified Firebase auth ID token: invalid"
+      }
+      logger.info({
+        type: "firebase-auth",
+        action: "read",
+        success: true,
+        responseTime: Date.now() - before,
+        message,
+        initiatorUserId,
+        endpoint: "firebase-admin/auth/verifyIdToken",
+      })
       return result
     })
     .catch((error) => {
       verifyInProgress.delete(token)
+      logger.error({
+        type: "firebase-auth",
+        action: "read",
+        success: false,
+        responseTime: Date.now() - before,
+        message: "Failed to verify Firebase auth ID token",
+        initiatorUserId: null,
+        endpoint: "firebase-admin/auth/verifyIdToken",
+      })
       throw error
     })
 
