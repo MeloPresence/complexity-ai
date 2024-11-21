@@ -39,6 +39,3 @@ next-env.d.ts
 # local config
 .npmrc
 /secrets
-
-# docker volume
-/.data
