@@ -20,9 +20,8 @@ const SYSTEM_PROMPT = `
 `
 
 export async function POST(req: NextRequest) {
-  logger.info({
-    action: "chat",
-  })
+  const backendLog = logger.startTime()
+  const geminiAiLog = logger.startTime()
   const {
     messages,
     conversationId,
@@ -69,6 +68,13 @@ export async function POST(req: NextRequest) {
         data.appendMessageAnnotation({ title })
       }
       data.appendMessageAnnotation({ finished: true })
+      geminiAiLog.info({
+        type: "gemini-ai",
+        action: "write",
+        success: true,
+        initiatorUserId: null,
+        endpoint: "ai/streamText",
+      })
       data.close()
 
       // Remove message annotations first
@@ -82,5 +88,12 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  backendLog.info({
+    type: "backend",
+    action: "write",
+    success: true,
+    initiatorUserId: null,
+    endpoint: "/api/chat",
+  })
   return result.toDataStreamResponse({ data })
 }

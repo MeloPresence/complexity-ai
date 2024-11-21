@@ -15,16 +15,15 @@ const conversationService = new ConversationService()
 export async function createConversation(
   data: ConversationDataModel,
 ): Promise<string> {
-  const before = Date.now()
+  const log = logger.startTime()
   const conversation = Conversation.fromModel(data)
   const result = await conversationService.createConversation(conversation)
-  logger.info({
+  log.info({
     type: "backend",
     action: "write",
     success: true,
-    responseTime: Date.now() - before,
     initiatorUserId: data.userId,
-    endpoint: "actions/conversations/createConversation",
+    endpoint: "@/actions/conversations/createConversation",
   })
   return result.id
 }
@@ -33,16 +32,15 @@ export async function updateConversation(
   id: string,
   data: ConversationDataModel,
 ): Promise<void> {
-  const before = Date.now()
+  const log = logger.startTime()
   const conversation = Conversation.fromModel(data)
   await conversationService.updateConversation(id, conversation)
-  logger.info({
+  log.info({
     type: "backend",
     action: "write",
     success: true,
-    responseTime: Date.now() - before,
     initiatorUserId: data.userId,
-    endpoint: "actions/conversations/updateConversation",
+    endpoint: "@/actions/conversations/updateConversation",
   })
 }
 
@@ -50,31 +48,26 @@ export async function getConversation(
   userId: string,
   conversationId: string,
 ): Promise<ConversationDataModel> {
-  const before = Date.now()
+  const log = logger.startTime({
+    type: "backend",
+    action: "read",
+    initiatorUserId: userId,
+    endpoint: "@/actions/conversations/getConversation",
+  })
   const result = await conversationService.getConversation(
     userId,
     conversationId,
   )
   const conversation = result.data()
   if (!conversation) {
-    logger.info({
-      type: "backend",
-      action: "read",
+    log.info({
       success: false,
-      responseTime: Date.now() - before,
-      initiatorUserId: userId,
-      endpoint: "actions/conversations/getConversation",
       message: "NOT_FOUND",
     })
     throw new Error("Conversation not found")
   }
-  logger.info({
-    type: "backend",
-    action: "read",
+  log.info({
     success: true,
-    responseTime: Date.now() - before,
-    initiatorUserId: userId,
-    endpoint: "actions/conversations/getConversation",
   })
   return conversation.toModel()
 }
@@ -82,15 +75,14 @@ export async function getConversation(
 export async function getConversationList(
   userId: string,
 ): Promise<ConversationInfo[]> {
-  const before = Date.now()
+  const log = logger.startTime()
   const result = await conversationService.getConversationList(userId)
-  logger.info({
+  log.info({
     type: "backend",
     action: "read",
     success: true,
-    responseTime: Date.now() - before,
     initiatorUserId: userId,
-    endpoint: "actions/conversations/getConversationList",
+    endpoint: "@/actions/conversations/getConversationList",
   })
   return result
 }

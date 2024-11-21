@@ -12,6 +12,7 @@ const transport = pino.transport<LokiOptions>({
 })
 
 const pinoLogger = pino(transport)
+
 export interface LogFormat {
   type:
     | "firebase-auth"
@@ -28,20 +29,53 @@ export interface LogFormat {
 }
 
 class Logger {
-  debug(data: LogFormat) {
-    pinoLogger.debug(data)
+  constructor(
+    private startTimestamp: number | null = null,
+    private initialData: Partial<LogFormat> = {},
+  ) {}
+
+  startTime(initialData?: Partial<LogFormat>): Logger {
+    return new Logger(Date.now(), initialData)
   }
-  info(data: LogFormat) {
-    pinoLogger.info(data)
+
+  private processData(newData: Partial<LogFormat>): LogFormat {
+    let data = { ...this.initialData }
+    if (this.startTimestamp !== null) {
+      data = {
+        ...data,
+        responseTime: this.startTimestamp - Date.now(),
+      }
+    } else if (!newData.responseTime) {
+      throw new Error(
+        "Provide a responseTime field or use the returned instance from startTime to do it",
+      )
+    }
+    return { ...data, ...newData } as LogFormat
   }
-  warn(data: LogFormat) {
-    pinoLogger.warn(data)
+
+  debug(data: Partial<LogFormat>) {
+    const newData = this.processData(data)
+    pinoLogger.debug(newData)
   }
-  error(data: LogFormat) {
-    pinoLogger.error(data)
+
+  info(data: Partial<LogFormat>) {
+    const newData = this.processData(data)
+    pinoLogger.info(newData)
   }
-  fatal(data: LogFormat) {
-    pinoLogger.fatal(data)
+
+  warn(data: Partial<LogFormat>) {
+    const newData = this.processData(data)
+    pinoLogger.warn(newData)
+  }
+
+  error(data: Partial<LogFormat>) {
+    const newData = this.processData(data)
+    pinoLogger.error(newData)
+  }
+
+  fatal(data: Partial<LogFormat>) {
+    const newData = this.processData(data)
+    pinoLogger.fatal(newData)
   }
 }
 

@@ -28,7 +28,7 @@ export interface ConversationInfo {
 export class Conversation {
   public constructor(
     private _name: string,
-    private userId: string,
+    private _userId: string,
     private isPublic: boolean,
     private _messageTree: MessageTreeNode,
   ) {}
@@ -60,6 +60,10 @@ export class Conversation {
 
   get name(): string {
     return this._name
+  }
+
+  get userId(): string {
+    return this._userId
   }
 }
 

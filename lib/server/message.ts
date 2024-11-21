@@ -1,4 +1,5 @@
 import type { PossiblyUploadedAttachment } from "@/lib/message"
+import { logger } from "@/lib/server/logger"
 import {
   FileState,
   GoogleAIFileManager,
@@ -85,21 +86,47 @@ export async function transformMessage(message: ModdedCoreUserMessage): Promise<
           .then((res) => res.arrayBuffer())
           .then((buf) => writeFile(filePath, Buffer.from(buf)))
 
+        const uploadLog = logger.startTime()
         // Lazy insecure way of uploading for now
         const uploadFileResponse: UploadFileResponse =
           await fileManager.uploadFile(filePath, {
             mimeType: attachment.contentType || FALLBACK_MIME_TYPE,
             displayName: attachment.name,
           })
+        uploadLog.info({
+          type: "gemini-files",
+          action: "write",
+          success: true,
+          initiatorUserId: null,
+          endpoint:
+            "@google/generative-ai/server/GoogleAIFileManager.uploadFile",
+        })
 
+        const getLog = logger.startTime()
         let fileMetadataResponse = await fileManager.getFile(
           uploadFileResponse.file.name,
         )
+        getLog.info({
+          type: "gemini-files",
+          action: "read",
+          success: true,
+          initiatorUserId: null,
+          endpoint: "@google/generative-ai/server/GoogleAIFileManager.getFile",
+        })
         while (fileMetadataResponse.state === FileState.PROCESSING) {
           await new Promise((resolve) => setTimeout(resolve, 1_000))
+          const getLog = logger.startTime()
           fileMetadataResponse = await fileManager.getFile(
             uploadFileResponse.file.name,
           )
+          getLog.info({
+            type: "gemini-files",
+            action: "read",
+            success: true,
+            initiatorUserId: null,
+            endpoint:
+              "@google/generative-ai/server/GoogleAIFileManager.getFile",
+          })
         }
 
         // TODO: Upload this to our own storage bucket next BUT WE NEED A PAID FIREBASE PLAN
