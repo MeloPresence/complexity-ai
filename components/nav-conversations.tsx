@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import type {
   CategorizedConversationInfo,
   ConversationInfoWithUrl,
 } from "@/lib/conversation"
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { MessageSquarePlus, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
 
 export function NavConversations({
@@ -71,9 +72,12 @@ export function NavConversations({
       <SidebarGroup>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/">New chat</Link>
-            </SidebarMenuButton>
+            <Button asChild className="w-full justify-start">
+              <Link href="/">
+                <MessageSquarePlus />
+                New chat
+              </Link>
+            </Button>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>

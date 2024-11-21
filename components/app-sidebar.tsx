@@ -3,12 +3,15 @@
 import { getConversationList } from "@/actions/conversations"
 import { NavConversations } from "@/components/nav-conversations"
 import { NavUser } from "@/components/nav-user"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar"
@@ -20,11 +23,13 @@ import {
   type ConversationInfo,
 } from "@/lib/conversation"
 import { UserInfoContext } from "@/lib/user"
-import { Command } from "lucide-react"
+import { Command, LayoutDashboard } from "lucide-react"
 import * as React from "react"
 import { useContext, useEffect, useRef, useState } from "react"
 
-// This is sample data.
+const DASHBOARD_PORT = 3000
+const DASHBOARD_PATH = "/d/complexity-ai/complexity-ai"
+
 const data = {
   apps: {
     name: "Complexity AI",
@@ -38,6 +43,19 @@ export function AppSidebar() {
   const categorizedConversations: CategorizedConversationInfo =
     categorizeConversationsByTime(conversations)
 
+  const dashboardLink = useRef<HTMLAnchorElement>(null)
+  useEffect(() => {
+    if (dashboardLink.current) {
+      dashboardLink.current.href =
+        window.location.protocol +
+        "//" +
+        window.location.hostname +
+        ":" +
+        DASHBOARD_PORT +
+        DASHBOARD_PATH
+    }
+  }, [])
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -49,11 +67,19 @@ export function AppSidebar() {
       <SidebarContent>
         <NavConversations items={categorizedConversations} />
       </SidebarContent>
-      {userInfo && (
-        <SidebarFooter>
-          <NavUser {...{ userInfo }} />
-        </SidebarFooter>
-      )}
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <Button asChild className="w-full justify-start">
+              <a ref={dashboardLink} href={DASHBOARD_PATH} target="_blank">
+                <LayoutDashboard />
+                Dashboard
+              </a>
+            </Button>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        {userInfo && <NavUser {...{ userInfo }} />}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
