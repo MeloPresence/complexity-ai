@@ -16,7 +16,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { IsAuthenticatedContext } from "@/lib/client/firebase/user"
-import { ConversationInfoListContext } from "@/lib/client/utils"
+import { ConversationInfoListStateContext } from "@/lib/client/utils"
 import {
   categorizeConversationsByTime,
   type CategorizedConversationInfo,
@@ -39,7 +39,7 @@ const data = {
 
 export function AppSidebar() {
   const userInfo = useContext(UserInfoContext)
-  const conversations = useContext(ConversationInfoListContext)
+  const [conversations] = useContext(ConversationInfoListStateContext)
   const categorizedConversations: CategorizedConversationInfo =
     categorizeConversationsByTime(conversations)
 
@@ -113,7 +113,6 @@ export function SidebarIfAuthenticated({
   const isFirstFetchDone = useRef(false)
   useEffect(() => {
     if (userInfo && !isFirstFetchDone.current) {
-      // TODO: Get conversation list again when updates happen in chat (probably can change the context value type)
       getConversationList(userInfo.uid).then((result) =>
         setConversations(result),
       )
@@ -122,8 +121,10 @@ export function SidebarIfAuthenticated({
   }, [userInfo])
 
   return (
-    <ConversationInfoListContext.Provider value={conversations}>
+    <ConversationInfoListStateContext.Provider
+      value={[conversations, setConversations]}
+    >
       {inner}
-    </ConversationInfoListContext.Provider>
+    </ConversationInfoListStateContext.Provider>
   )
 }

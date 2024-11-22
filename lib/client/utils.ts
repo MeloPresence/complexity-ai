@@ -1,7 +1,9 @@
 import type { ConversationInfo } from "@/lib/conversation"
 import { createContext } from "react"
 
-export const ConversationInfoListContext = createContext<ConversationInfo[]>([])
+export const ConversationInfoListStateContext = createContext<
+  [ConversationInfo[], (value: ConversationInfo[]) => void]
+>([[], () => {}])
 
 export function addCookie(key: string, value: string) {
   const regex = new RegExp(`${key}\\s*=\\s*\\S+?\\s*(?=;|$)`)

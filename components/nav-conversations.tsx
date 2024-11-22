@@ -31,10 +31,12 @@ export function NavConversations({
   const { isMobile } = useSidebar()
 
   // Helper function to render a list of projects
+
   const renderConversations = (conversations: ConversationInfoWithUrl[]) => (
     <SidebarMenu>
       {conversations.map((item) => (
         <SidebarMenuItem key={item.id}>
+          {/*TODO: Add active link color to current conversation*/}
           <SidebarMenuButton asChild>
             <Link href={item.url}>
               <span>{item.name}</span>

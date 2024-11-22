@@ -3,12 +3,14 @@
 import {
   createConversation,
   getConversation,
+  getConversationList,
   updateConversation,
 } from "@/actions/conversations"
 import DragAndDropFilePicker from "@/components/drag-and-drop-file-picker"
 import { ChatInput } from "@/components/input"
 import { ChatBubble, LoadingChatBubble } from "@/components/message"
 import { IsAuthenticatedContext } from "@/lib/client/firebase/user"
+import { ConversationInfoListStateContext } from "@/lib/client/utils"
 import { Conversation } from "@/lib/conversation"
 import { MessageTreeNode } from "@/lib/message"
 import { UserInfoContext } from "@/lib/user"
@@ -197,6 +199,10 @@ export function Chat({
     originalConversationId,
   )
 
+  const [, setConversationInfoList] = useContext(
+    ConversationInfoListStateContext,
+  )
+
   function createOrUpdateConversation() {
     if (userInfo && latestMessageTreeNode.getMessage()) {
       const rootNode = latestMessageTreeNode.getRootNode()
@@ -209,6 +215,9 @@ export function Chat({
       console.log("createOrUpdateConversation", latestMessageTreeNode, rootNode)
       if (!conversationId) {
         createConversation(conversation.toModel()).then((id) => {
+          getConversationList(userInfo.uid).then((list) =>
+            setConversationInfoList(list),
+          )
           setConversationId(id)
           const newUrl = `/${id}`
           window.history.replaceState(
