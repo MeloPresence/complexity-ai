@@ -11,6 +11,7 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
+  SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
@@ -59,7 +60,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center space-x-2 ml-3 mt-3">
+        <div className="flex items-center space-x-2 ml-2 mt-3">
           <data.apps.logo />
           <span className="font-sans font-semibold">{data.apps.name}</span>
         </div>
@@ -70,12 +71,12 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Button asChild className="w-full justify-start">
+            <SidebarMenuButton asChild className="w-full justify-start">
               <a ref={dashboardLink} href={DASHBOARD_PATH} target="_blank">
                 <LayoutDashboard />
                 Dashboard
               </a>
-            </Button>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         {userInfo && <NavUser {...{ userInfo }} />}

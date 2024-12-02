@@ -83,7 +83,7 @@ export function NavUser({ userInfo }: { userInfo: UserInfo }) {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <button
-                  className="flex items-center w-full p-1"
+                  className="flex items-center w-full p-1 cursor-pointer"
                   onClick={handleSignOut}
                 >
                   <LogOut className="mr-2" />

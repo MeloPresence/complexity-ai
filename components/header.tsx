@@ -39,7 +39,7 @@ export function Header() {
             <Separator orientation="vertical" className="mr-2 h-4" />
           </>
         )}
-        <Breadcrumb>
+        {/* <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="#">
@@ -51,7 +51,7 @@ export function Header() {
               <BreadcrumbPage>Data Fetching</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
-        </Breadcrumb>
+        </Breadcrumb> */}
       </div>
       <div className="ml-auto flex">
         {!userInfo && (

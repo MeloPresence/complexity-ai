@@ -74,12 +74,12 @@ export function NavConversations({
       <SidebarGroup>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Button asChild className="w-full justify-start">
+            <SidebarMenuButton asChild className="w-full justify-start text-base">
               <Link href="/">
                 <MessageSquarePlus />
                 New chat
               </Link>
-            </Button>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
