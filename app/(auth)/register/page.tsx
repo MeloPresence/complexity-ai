@@ -87,7 +87,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container relative hidden h-[750px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+    <div className="container relative hidden min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0 dark:bg-neutral-800">
       <div
         className="relative hidden w-[60vw] h-full flex-col bg-cover bg-center bg-no-repeat p-10 text-white dark:border-r lg:flex"
         style={{
@@ -95,8 +95,8 @@ export default function RegisterPage() {
             "url('https://images.hdqwalls.com/download/digital-art-abstract-black-lines-minimalism-5k-q3-3840x2160.jpg')",
         }}
       >
-        <div className="absolute inset-0 bg-opacity-70" />
-        {/* Optional: for overlay effect */}
+        {/* <div className="absolute inset-0 bg-opacity-70" />
+        Optional: for overlay effect */}
 
         <div className="relative z-20 flex items-center text-lg font-medium">
           <svg
@@ -111,7 +111,9 @@ export default function RegisterPage() {
           >
             <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
           </svg>
+          <div className="font-sans">
           Complexity AI
+          </div>
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -127,10 +129,10 @@ export default function RegisterPage() {
       <div className="relative mr-150 lg:p-8 flex justify-center items-center ml-[10vw]">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-3xl font-semibold tracking-tight">
               Create an account
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="py-4 text-sm text-muted-foreground dark:text-white">
               Enter your email and password to create your account.
             </p>
           </div>
@@ -140,18 +142,18 @@ export default function RegisterPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border p-2 text-sm"
+              className="w-full rounded-md border p-2 text-sm dark:bg-neutral-700"
             />
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border p-2 text-sm"
+              className="w-full rounded-md border p-2 text-sm dark:bg-neutral-700"
             />
             <button
               type="submit"
-              className="w-full bg-black text-white rounded-md py-2"
+              className="w-full bg-black text-white font-bold rounded-md py-2 dark:bg-zinc-200 dark:text-black"
             >
               Sign Up
             </button>
@@ -162,7 +164,7 @@ export default function RegisterPage() {
             <p className="text-green-500 text-sm">{successMessage}</p>
           )}
 
-          <p className="px-8 text-center text-sm text-muted-foreground">
+          <div className="px-8 text-center text-sm text-muted-foreground dark:text-white">
             Already have an account?{" "}
             <Link
               href="/login"
@@ -170,7 +172,7 @@ export default function RegisterPage() {
             >
               Login
             </Link>
-          </p>
+          </div>
         </div>
       </div>
     </div>

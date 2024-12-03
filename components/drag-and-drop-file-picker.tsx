@@ -49,10 +49,10 @@ export default function DragAndDropFilePicker({
       onDrop={handleDrop}
     >
       {isDragging && (
-        <div className="fixed pointer-events-none dark:bg-zinc-900/90 h-dvh w-dvw z-10 justify-center items-center flex flex-col gap-1 bg-zinc-100/90">
+        <div className="fixed inset-0 pointer-events-none z-10 dark:bg-zinc-900/90 z-10 justify-center items-center flex flex-col gap-1 bg-zinc-100/90">
           <div>Drag and drop files here!</div>
           <div className="text-sm dark:text-zinc-400 text-zinc-500">
-            {"(images and text)"}
+            {"(Text, images, audio and videos)"}
           </div>
         </div>
       )}

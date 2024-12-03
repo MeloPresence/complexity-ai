@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-neutral-800">
       <Card className="w-full max-w-md p-6">
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-tight">
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border p-2 text-sm"
+              className="w-full rounded-md border p-2 text-sm dark:bg-neutral-700"
             />
           </div>
           {errorMessage && (
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button
-            className="w-full bg-black text-white rounded-md py-2"
+            className="w-full bg-black text-white font-bold rounded-md py-2 dark:bg-zinc-200 dark:text-black"
             onClick={handlePasswordReset}
           >
             Send Reset Link

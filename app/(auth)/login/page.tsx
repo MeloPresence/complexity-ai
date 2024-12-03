@@ -91,13 +91,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-neutral-800">
+      <Card className="w-full max-w-md p-8 dark:bg-neutral-900">
         <CardHeader>
-          <CardTitle className="text-2xl text-center font-semibold tracking-tight">
+          <CardTitle className="font-sans text-3xl text-center font-semibold tracking-tight">
             Login
           </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground text-center">
+          <CardTitle className="font-sans text-xl font-semibold tracking-tight pt-6">
+            Welcome back!
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground dark:text-white">
             Enter your email and password to login
           </CardDescription>
         </CardHeader>
@@ -109,7 +112,7 @@ export default function LoginPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border p-2 text-sm"
+              className="w-full rounded-md border p-2 text-sm dark:bg-neutral-700"
             />
           </div>
           <div className="grid gap-2">
@@ -119,24 +122,34 @@ export default function LoginPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border p-2 text-sm"
+              className="w-full rounded-md border p-2 text-sm dark:bg-neutral-700"
             />
+          <Link
+            href="/forget-password"
+            className="text-xs text-muted-foreground ml-auto dark:text-white"
+          >
+            Forgot password?
+          </Link>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button
-            className="w-full bg-black text-white rounded-md py-2"
+            className="mt-2 w-full bg-black text-white font-bold rounded-md dark:bg-zinc-200 dark:text-black"
             onClick={handleLogin}
           >
             Login
           </Button>
-          <Link
-            href="/forget-password"
-            className="text-sm text-muted-foreground"
-          >
-            Forgot password?
-          </Link>
+
+          <div className="mt-2 text-sm text-muted-foreground dark:text-white">
+            Don't have an account yet?{" "}
+            <Link
+              href="/register"
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Register now
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </div>
