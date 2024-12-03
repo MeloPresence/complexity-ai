@@ -28,7 +28,7 @@ export function NavUser({ userInfo }: { userInfo: UserInfo }) {
 
   const handleSignOut = async () => {
     await signOut()
-    router.push("/")
+    router.push("/login")
   }
 
   const displayName = userInfo.email || userInfo.uid
