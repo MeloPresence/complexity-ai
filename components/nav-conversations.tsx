@@ -42,7 +42,7 @@ export function NavConversations({
               <span>{item.name}</span>
             </Link>
           </SidebarMenuButton>
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuAction showOnHover>
                 <MoreHorizontal />
@@ -63,7 +63,7 @@ export function NavConversations({
                 <span>Delete</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
@@ -75,7 +75,7 @@ export function NavConversations({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="w-full justify-start text-base">
-              <Link href="/">
+              <Link href="/nav-conversations">
                 <MessageSquarePlus />
                 New chat
               </Link>

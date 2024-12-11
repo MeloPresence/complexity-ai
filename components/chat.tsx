@@ -278,10 +278,10 @@ export function Chat({
         {currentMessageNodePath.length > 0 ? (
           // Have existing messages
           <div className="flex flex-col gap-2 items-center min-h-full ml-60 mr-60">
-            <div className="w-full">
+            {/* <div className="w-full">
               <div>Title: {conversationTitle || "no title"}</div>
               <div>ID: {conversationId || "no ID"}</div>
-            </div>
+            </div> */}
             {currentMessageNodePath.map((node, index) => (
               <ChatBubble
                 {...{
