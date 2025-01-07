@@ -34,6 +34,8 @@ Run `docker run --name complexity-ai -p 3000:3000 complexity-ai:latest` to run t
 
 Swap `docker` with `podman` when using Podman.
 
+`podman compose up --build`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
